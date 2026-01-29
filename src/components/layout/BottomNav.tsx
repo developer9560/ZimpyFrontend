@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Search, Tag, ShoppingCart, User } from 'lucide-react';
+import { Home, Search, Tag, ShoppingCart, User, Blocks, CirclePlus } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { useCartStore } from '@/src/store/cartStore';
 import { ROUTES } from '@/src/lib/constants';
@@ -16,8 +16,8 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { icon: Home, label: 'Home', href: '/user' },
-  { icon: Search, label: 'Search', href: '/user/products' },
-  { icon: Tag, label: 'Offers', href: '/user/offers' },
+  { icon: Blocks, label: 'Categories', href: '/user/category' },
+  { icon: CirclePlus, label: 'Add', href: '/user/add' },
   { icon: ShoppingCart, label: 'Cart', href: '/user/cart' },
   { icon: User, label: 'Account', href: '/user/account' },
 ];
