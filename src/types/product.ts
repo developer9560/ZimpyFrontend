@@ -8,6 +8,8 @@ export interface Category {
     imageUrl?: string;
     isActive: boolean;
     level: number;
+    priority?: number;
+    isFeatured?: boolean;
 }
 
 export type CategoryResponse = Category;
@@ -58,6 +60,7 @@ export interface CategoryTreeResponse {
     isActive: boolean;
     priority?: number;
     productCount: number;
+    isFeatured?: boolean;
 }
 
 export interface ProductDetail {
@@ -132,9 +135,32 @@ export interface ProductAnalytics {
     productsByCategory: Record<string, number>;
 }
 
+export interface ProductMiniSkuResponse {
+    id: number;
+    skuCode: string;
+    price: number;
+    mrp: number;
+    stock: number;
+    availableStock: number;
+}
+
+export interface ProductMiniResponse {
+    id: number;
+    slug: string;
+    name: string;
+    brandName: string;
+    imageUrl: string;
+    skuResponse: ProductMiniSkuResponse;
+}
+
 export interface CategoryProduct {
     category: CategoryMiniResponse;
     products: Product[];
+}
+
+export interface CategoryResponseForProductCard {
+    category: CategoryMiniResponse;
+    products: ProductMiniResponse[];
 }
 
 export interface ProductVariants {

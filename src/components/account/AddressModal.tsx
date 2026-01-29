@@ -21,8 +21,8 @@ const STATES = [
 ];
 
 const addressSchema = z.object({
-    fullName: z.string().min(3, 'Name is required'),
-    phone: z.string().regex(/^[6-9]\d{9}$/, 'Valid phone number required'),
+
+    contactNumber: z.string().regex(/^[6-9]\d{9}$/, 'Valid phone number required'),
     pincode: z.string().regex(/^\d{6}$/, 'Valid 6-digit pincode required'),
     city: z.string().min(2, 'City is required'),
     state: z.string().min(2, 'State is required'),
@@ -61,14 +61,13 @@ export const AddressModal = ({ isOpen, onClose, onSuccess, editAddress }: Addres
         if (isOpen) {
             if (editAddress) {
                 // Populate form for edit
-                setValue('fullName', editAddress.fullName);
-                setValue('phone', editAddress.phone);
-                setValue('pincode', editAddress.pincode);
+
+                setValue('contactNumber', editAddress.contactNumber);
+                setValue('pincode', editAddress.postalCode);
                 setValue('city', editAddress.city);
                 setValue('state', editAddress.state);
                 setValue('addressLine1', editAddress.addressLine1);
                 setValue('addressLine2', editAddress.addressLine2);
-                setValue('landmark', editAddress.landmark);
                 setValue('type', editAddress.type);
                 setValue('isDefault', editAddress.isDefault);
             } else {
@@ -79,11 +78,16 @@ export const AddressModal = ({ isOpen, onClose, onSuccess, editAddress }: Addres
 
     const onSubmit = async (data: AddressFormData) => {
         try {
+            const payload: any = {
+                ...data,
+                postalCode: data.pincode,
+                country: 'India'
+            };
             if (editAddress) {
-                await userAPI.updateAddress(editAddress.id, data);
+                await userAPI.updateAddress(editAddress.id, payload);
                 toast.success('Address updated successfully');
             } else {
-                await userAPI.addAddress(data);
+                await userAPI.addAddress(payload);
                 toast.success('Address added successfully');
             }
             onSuccess();
@@ -102,18 +106,13 @@ export const AddressModal = ({ isOpen, onClose, onSuccess, editAddress }: Addres
         >
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
                     <Input
-                        {...register('fullName')}
-                        label="Full Name"
-                        placeholder="Enter full name"
-                        error={errors.fullName?.message}
-                    />
-                    <Input
-                        {...register('phone')}
+                        {...register('contactNumber')}
                         label="Phone Number"
                         placeholder="10-digit mobile number"
                         type="tel"
-                        error={errors.phone?.message}
+                        error={errors.contactNumber?.message}
                     />
                 </div>
 

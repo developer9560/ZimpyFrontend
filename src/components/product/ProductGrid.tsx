@@ -12,9 +12,6 @@ interface ProductGridProps {
   isLoading?: boolean;
   className?: string;
   columns?: 2 | 3 | 4 | 5 | 6;
-  showWishlist?: boolean;
-  wishlistedIds?: string[];
-  onWishlistClick?: (product: Product) => void;
   cardVariant?: 'default' | 'mobile'; // New prop to switch card type
 }
 
@@ -31,9 +28,6 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   isLoading = false,
   className,
   columns = 4,
-  showWishlist = true,
-  wishlistedIds = [],
-  onWishlistClick,
   cardVariant = 'default',
 }) => {
   if (isLoading) {
@@ -64,17 +58,11 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
           <MobileProductCard
             key={product.id}
             product={product}
-            showWishlist={showWishlist}
-            isWishlisted={wishlistedIds.includes(product.id)}
-            onWishlistClick={onWishlistClick}
           />
         ) : (
           <ProductCard
             key={product.id}
             product={product}
-            showWishlist={showWishlist}
-            isWishlisted={wishlistedIds.includes(product.id)}
-            onWishlistClick={onWishlistClick}
           />
         )
       ))}

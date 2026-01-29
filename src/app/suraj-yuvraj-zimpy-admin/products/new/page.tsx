@@ -238,11 +238,6 @@ export default function ProductFormPage() {
                     ...sku,
                     productId: savedProductId
                 });
-                if (created.success === false) {
-                    toast.error('Failed to add variant');
-                    toast.error(created.message);
-                    return;
-                }
                 toast.success('Variant added');
                 const next = [...skuForms];
                 next[index] = { ...created, costPrice: created.costPrice || sku.costPrice };

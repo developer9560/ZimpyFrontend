@@ -142,8 +142,8 @@ export const useAuthStore = create<AuthStore>()(
 
         set({ isLoading: true });
         try {
-          const user = await userAPI.getProfile();
-          set({ user, isLoading: false });
+          const response = await userAPI.getProfile();
+          set({ user: response.data as any, isLoading: false });
         } catch (error) {
           set({ isLoading: false });
           // If profile fetch fails, clear auth state

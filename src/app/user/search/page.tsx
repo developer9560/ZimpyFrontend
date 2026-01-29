@@ -1,17 +1,17 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Search, X, ChevronLeft, TrendingUp, Clock, ArrowRight } from 'lucide-react';
+import { Search as SearchIcon, X, ChevronLeft, TrendingUp, Clock, ArrowRight } from 'lucide-react';
 import { ProductGrid } from '@/src/components/product/ProductGrid';
 import { CATEGORIES } from '@/src/lib/constants';
-import { MOCK_PRODUCTS as ALL_PRODUCTS } from '@/src/lib/mockData';
+import { productsAPI } from '@/src/lib/api';
 import { cn } from '@/src/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Product } from '@/src/types';
 
-export default function SearchPage() {
+function SearchPageContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const initialQuery = searchParams.get('q') || '';
@@ -33,7 +33,7 @@ export default function SearchPage() {
         }
     }, [searchParams]);
 
-    // Handle Search Logic (Debounced in a real app, immediate for mock)
+    // Handle Search Logic
     useEffect(() => {
         if (!query.trim()) {
             setResults([]);
@@ -41,15 +41,19 @@ export default function SearchPage() {
         }
 
         setIsSearching(true);
-        const timeoutId = setTimeout(() => {
-            const searchTerms = query.toLowerCase().split(' ');
-            const filtered = ALL_PRODUCTS.filter((product) => {
-                const productString = `${product.name} ${product.description} ${product.category}`.toLowerCase();
-                return searchTerms.every((term) => productString.includes(term));
-            });
-            setResults(filtered);
-            setIsSearching(false);
-        }, 300); // Simulate network delay
+        const fetchResults = async () => {
+            try {
+                const response = await productsAPI.search(query);
+                setResults(response.content || []);
+            } catch (err) {
+                console.error('Search failed:', err);
+                setResults([]);
+            } finally {
+                setIsSearching(false);
+            }
+        };
+
+        const timeoutId = setTimeout(fetchResults, 300);
 
         return () => clearTimeout(timeoutId);
     }, [query]);
@@ -64,8 +68,6 @@ export default function SearchPage() {
     const handleSearchSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (query.trim()) {
-            // In a real app, you might navigate or just update state. 
-            // Since we are already on the search page, we just ensure the URL reflects the query
             router.replace(`/user/search?q=${encodeURIComponent(query)}`);
         }
     };
@@ -99,7 +101,7 @@ export default function SearchPage() {
 
                         <div className="flex-1 relative">
                             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                                <Search size={20} />
+                                <SearchIcon size={20} />
                             </div>
                             <input
                                 ref={inputRef}
@@ -107,7 +109,6 @@ export default function SearchPage() {
                                 value={query}
                                 onChange={(e) => {
                                     setQuery(e.target.value);
-                                    // Optional: update URL on fly or only on submit. Updating on fly is better for "live" feel
                                 }}
                                 placeholder="Search for bread, milk, eggs..."
                                 className="w-full h-12 pl-12 pr-10 rounded-xl border border-gray-200 bg-gray-50 text-base text-black focus:bg-white focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 transition-all outline-none shadow-sm"
@@ -123,7 +124,6 @@ export default function SearchPage() {
                             )}
                         </div>
 
-                        {/* Desktop Search Button (Optional, since enter works) */}
                         <button
                             type="submit"
                             className="hidden md:flex items-center justify-center h-12 px-6 bg-[#10B981] text-white font-semibold rounded-xl hover:bg-[#059669] transition-colors shadow-sm active:scale-95"
@@ -140,23 +140,6 @@ export default function SearchPage() {
                 {/* State: No Query (Default View) */}
                 {!query && (
                     <div className="mt-6 space-y-8 animate-fadeIn">
-
-                        {/* Recent Searches (Mock) 
-            <div className="space-y-4">
-                <div className="flex items-center gap-2 text-sm font-bold text-gray-500 uppercase tracking-wider">
-                    <Clock size={16} />
-                    <span>Recent Searches</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                    {['Milk', 'Bread', 'Butter'].map(term => (
-                        <button key={term} onClick={() => setQuery(term)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm text-gray-700 hover:border-[#10B981] hover:text-[#10B981] transition-colors">
-                            {term}
-                        </button>
-                    ))}
-                </div>
-            </div>
-            */}
-
                         {/* Trending Categories */}
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
@@ -205,13 +188,13 @@ export default function SearchPage() {
                                 <ProductGrid
                                     products={results}
                                     columns={5}
-                                    cardVariant="mobile" // Using the mobile variant for dense, premium look
+                                    cardVariant="mobile"
                                 />
                             </div>
                         ) : (
                             <div className="flex flex-col items-center justify-center py-20 text-center animate-fadeIn">
                                 <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
-                                    <Search size={40} className="text-gray-400" />
+                                    <SearchIcon size={40} className="text-gray-400" />
                                 </div>
                                 <h3 className="text-xl font-bold text-gray-900 mb-2">No results found</h3>
                                 <p className="text-gray-500 max-w-xs mx-auto">
@@ -229,5 +212,17 @@ export default function SearchPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function SearchPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="w-8 h-8 border-4 border-[#10B981] border-t-transparent rounded-full animate-spin" />
+            </div>
+        }>
+            <SearchPageContent />
+        </Suspense>
     );
 }

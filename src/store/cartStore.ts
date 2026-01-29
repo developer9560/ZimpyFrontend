@@ -294,7 +294,7 @@ const mapBackendCartToFrontend = (res: CartResponse): CartItem[] => {
       id: item.productId,
       name: item.productName,
       slug: '',
-      description: '',
+      productDetails: [],
       summary: '',
       isActive: true,
       category: { id: 0, name: '', isActive: true },

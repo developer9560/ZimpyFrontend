@@ -187,10 +187,12 @@ export const PAYMENT_METHODS = [
 // Order Status Labels and Colors
 export const ORDER_STATUS = {
   CREATED: { label: 'Created', color: 'bg-blue-100 text-blue-700', icon: '📝' },
-  PENDING: { label: 'Payment Pending', color: 'bg-yellow-100 text-yellow-700', icon: '⏳' },
+  PENDING: { label: 'In Progress', color: 'bg-yellow-100 text-yellow-700', icon: '⏳' },
+  PAID: { label: 'Paid & Processing', color: 'bg-emerald-100 text-emerald-700', icon: '💰' },
   SHIPPED: { label: 'Shipped', color: 'bg-indigo-100 text-indigo-700', icon: '🚚' },
   DELIVERED: { label: 'Delivered', color: 'bg-teal-100 text-teal-700', icon: '✅' },
   CANCELLED: { label: 'Cancelled', color: 'bg-red-100 text-red-700', icon: '❌' },
+  PAYMENT_PENDING: { label: 'Payment Pending', color: 'bg-orange-100 text-orange-700', icon: '💳' },
 } as const;
 
 // Free Delivery Threshold

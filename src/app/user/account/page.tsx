@@ -155,11 +155,11 @@ export default function ProfilePage() {
                     <div className="bg-gray-50 rounded-lg p-4 border border-gray-100 flex gap-3 items-start">
                         <MapPin className="text-gray-400 mt-1 shrink-0" size={20} />
                         <div className="text-sm text-gray-600">
-                            <p className="font-medium text-gray-900">{defaultAddress.fullName || userData?.fullName || 'My Address'}</p>
+                            <p className="font-medium text-gray-900">{userData?.fullName || 'My Address'}</p>
                             <p>{defaultAddress.addressLine1}</p>
                             {defaultAddress.addressLine2 && <p>{defaultAddress.addressLine2}</p>}
-                            <p>{defaultAddress.city}, {defaultAddress.state} - {defaultAddress.pincode}</p>
-                            <p className="mt-1 font-medium">{defaultAddress.phone}</p>
+                            <p>{defaultAddress.city}, {defaultAddress.state} - {defaultAddress.postalCode}</p>
+                            <p className="mt-1 font-medium">{defaultAddress.contactNumber}</p>
                         </div>
                     </div>
                 ) : (

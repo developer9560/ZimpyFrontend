@@ -6,9 +6,11 @@ export interface Address {
     contactNumber: string;
     addressLine1: string;
     addressLine2?: string;
+    landmark?: string;
     city: string;
     state: string;
     postalCode: string;
+    pincode?: string;
     country: "India";
     type: 'home' | 'office' | 'other';
     isDefault: boolean;

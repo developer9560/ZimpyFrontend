@@ -65,9 +65,9 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
                     <div className="flex items-center gap-2">
                         {displayedItems.map((item) => (
                             <div key={item.id} className="relative w-16 h-16 rounded-lg border border-gray-100 overflow-hidden bg-gray-50">
-                                {item.product.images?.[0]?.url ? (
+                                {item.product.images?.[0] ? (
                                     <Image
-                                        src={item.product.images[0].url}
+                                        src={item.product.images[0].imageUrl}
                                         alt={item.product.name}
                                         fill
                                         className="object-cover"
