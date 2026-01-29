@@ -1,0 +1,170 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Minus, Plus, ImageIcon } from 'lucide-react';
+import { cn, formatPrice } from '@/src/lib/utils';
+import { useCartStore } from '@/src/store/cartStore';
+import { productsAPI } from '@/src/lib/api';
+import type { Product } from '@/src/types';
+
+interface MobileProductCardProps {
+    product: Product;
+}
+
+export const MobileProductCard: React.FC<MobileProductCardProps> = ({ product }) => {
+    const { addItem, updateQuantity, getItemQuantity, isInCart } = useCartStore();
+    const [hasMounted, setHasMounted] = useState(false);
+    const [displayUnit, setDisplayUnit] = useState<string>('');
+
+    useEffect(() => {
+        setHasMounted(true);
+
+        // Fetch first attribute value for this product
+        const fetchFirstAttribute = async () => {
+            try {
+                const variantData = await productsAPI.getProductVariants(product.id);
+
+                // Get the first attribute's first value
+                if (variantData.attributes && variantData.attributes.length > 0) {
+                    const firstAttribute = variantData.attributes[0];
+                    if (firstAttribute.options && firstAttribute.options.length > 0) {
+                        setDisplayUnit(firstAttribute.options[0].value);
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to fetch variant:', err);
+            }
+        };
+
+        // Only fetch if product has multiple SKUs
+        if (product.skus && product.skus.length > 1) {
+            fetchFirstAttribute();
+        } else if (product.unit) {
+            setDisplayUnit(product.unit);
+        }
+    }, [product.id, product.skus, product.unit]);
+
+    const quantity = getItemQuantity(product.id);
+    // Get price and stock from the first SKU (default)
+    const sku = product.skus?.[0];
+    const price = sku?.price || 0;
+    const originalPrice = sku?.mrp || price;
+    const stock = sku?.stock || 0;
+    const isOutOfStock = stock === 0;
+
+    // Calculate discount percentage
+    const discountPercentage = originalPrice > price
+        ? Math.round(((originalPrice - price) / originalPrice) * 100)
+        : 0;
+
+    const handleAddToCart = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!isOutOfStock) {
+            addItem(product, 1);
+        }
+    };
+
+    const handleIncrement = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (quantity < stock) {
+            updateQuantity(product.id, quantity + 1);
+        }
+    };
+
+    const handleDecrement = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (quantity > 0) {
+            updateQuantity(product.id, quantity - 1);
+        }
+    };
+
+    return (
+        <Link
+            href={`/user/products/${product.id}`}
+            className="group flex flex-col bg-white rounded-xl p-2 border border-gray-100 hover:border-[#10B981]/30 transition-all hover:shadow-md h-full relative"
+        >
+            <div className="relative w-full aspect-square flex items-center justify-center bg-white rounded-lg mb-2 overflow-hidden shadow-sm group-hover:scale-105 transition-transform duration-300">
+                {product.images?.[0] ? (
+                    <Image
+                        src={product.images[0].imageUrl}
+                        alt={product.name}
+                        fill
+                        className="object-contain p-2"
+                    />
+                ) : (
+                    <div className="text-4xl text-gray-200">📦</div>
+                )}
+
+                {discountPercentage > 0 && (
+                    <div className="absolute top-1 left-1 bg-[#3B82F6] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-sm z-10">
+                        {discountPercentage}% OFF
+                    </div>
+                )}
+            </div>
+
+            {/* Content */}
+            <div className="flex flex-col flex-1 gap-1">
+                <h3 className="text-[11px] md:text-sm font-semibold text-gray-800 line-clamp-2 leading-tight group-hover:text-[#10B981] transition-colors">
+                    {product.name}
+                </h3>
+                <p className="text-[10px] text-gray-500 font-medium">
+                    {displayUnit || product.unit || 'Default'}
+                </p>
+
+                <div className="mt-auto pt-1 mb-2">
+                    <div className="flex flex-col">
+                        <span className="text-xs md:text-base font-bold text-gray-900">
+                            {formatPrice(price)}
+                        </span>
+                        {originalPrice > price && (
+                            <span className="text-[10px] text-gray-400 line-through">
+                                {formatPrice(originalPrice)}
+                            </span>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Add Button Section */}
+            <div className="w-full h-[28px]">
+                {hasMounted && isInCart(product.id) && quantity > 0 ? (
+                    <div className="w-full h-full flex items-center justify-between bg-[#10B981] rounded-md">
+                        <button
+                            onClick={handleDecrement}
+                            className="w-full h-full flex items-center justify-center text-white active:bg-black/10 rounded-l-md"
+                        >
+                            <Minus size={12} strokeWidth={3} />
+                        </button>
+                        <span className="text-white text-xs font-bold">{quantity}</span>
+                        <button
+                            onClick={handleIncrement}
+                            className="w-full h-full flex items-center justify-center text-white active:bg-black/10 rounded-r-md"
+                        >
+                            <Plus size={12} strokeWidth={3} />
+                        </button>
+                    </div>
+                ) : (
+                    <button
+                        onClick={handleAddToCart}
+                        disabled={isOutOfStock}
+                        className={cn(
+                            "w-full h-full rounded-md text-[10px] font-bold border-2 transition-all active:scale-95 uppercase tracking-tight",
+                            isOutOfStock
+                                ? "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed"
+                                : "bg-[#F0FDF4] border-[#10B981] text-[#10B981] hover:bg-[#10B981] hover:text-white"
+                        )}
+                    >
+                        {isOutOfStock ? "OOS" : "ADD"}
+                    </button>
+                )}
+            </div>
+        </Link>
+    );
+};
+
+export default MobileProductCard;
