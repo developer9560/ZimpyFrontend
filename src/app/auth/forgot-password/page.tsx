@@ -34,10 +34,12 @@ export default function ForgotPasswordPage() {
 
     const onSubmit = async (data: ForgotPasswordFormData) => {
         try {
-            await requestPasswordReset(data.email);
+            const response = await requestPasswordReset(data.email);
+
             setIsOTPSent(true);
             toast.success('OTP sent to your email!');
             router.push(`/auth/verify-otp?email=${encodeURIComponent(data.email)}`);
+
         } catch {
             toast.error(error || 'Failed to send OTP. Please try again.');
         }

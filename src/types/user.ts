@@ -23,9 +23,6 @@ export interface User {
     email: string;
     phone?: string;
     fullName: string;
-    avatar?: string;
-    gender?: 'male' | 'female' | 'other';
-    dateOfBirth?: string;
     role: 'user' | 'admin';
     isEmailVerified: boolean;
     isPhoneVerified: boolean;

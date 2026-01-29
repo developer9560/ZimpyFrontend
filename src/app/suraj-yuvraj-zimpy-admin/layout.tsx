@@ -52,8 +52,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     ];
 
     const handleLogout = () => {
+        localStorage.removeItem('accessToken');
         localStorage.removeItem('adminToken');
-        localStorage.removeItem('adminUser');
+        localStorage.removeItem('rzp_checkout_anon_id');
+        localStorage.removeItem('rzp_device_id');
+        localStorage.removeItem('rzp_test_device_id');
         router.push(`${BASE_PATH}/adminlogin`);
     };
 
