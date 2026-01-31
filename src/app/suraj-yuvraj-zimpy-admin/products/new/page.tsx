@@ -69,7 +69,7 @@ export default function ProductFormPage() {
         progress: number;
         status: 'pending' | 'uploading' | 'done' | 'error';
         id?: number;
-        isPrimary: boolean;
+        primary: boolean;
     }[]>([]);
 
     // Variant Mapping UI State
@@ -138,7 +138,7 @@ export default function ProductFormPage() {
                     progress: 100,
                     status: 'done' as const,
                     id: img.id,
-                    isPrimary: img.isPrimary
+                    primary: img.primary
                 })) || [];
                 setGallery(existingImages);
             }
@@ -396,7 +396,7 @@ export default function ProductFormPage() {
             preview: URL.createObjectURL(file),
             progress: 0,
             status: 'uploading' as const,
-            isPrimary: false
+            primary: false
         }));
 
         setGallery(prev => [...prev, ...newItems]);
@@ -447,7 +447,7 @@ export default function ProductFormPage() {
             await productImageAPI.setPrimary(id);
             setGallery(prev => prev.map(img => ({
                 ...img,
-                isPrimary: img.id === id
+                primary: img.id === id
             })));
             toast.success('Primary image updated');
         } catch (error) {
@@ -485,7 +485,7 @@ export default function ProductFormPage() {
         }
 
         // Ensure at least one is primary
-        const hasPrimary = gallery.some(g => g.isPrimary);
+        const hasPrimary = gallery.some(g => g.primary);
         if (!hasPrimary && gallery.length > 0 && gallery[0].id) {
             await handleSetPrimaryImage(gallery[0].id!);
         }
@@ -918,12 +918,12 @@ export default function ProductFormPage() {
                             {gallery.map((img, idx) => (
                                 <div key={idx} className={cn(
                                     "aspect-square rounded-3xl border-4 overflow-hidden relative group shadow-sm transition-all",
-                                    img.isPrimary ? "border-emerald-500 ring-4 ring-emerald-500/10" : "border-gray-50"
+                                    img.primary ? "border-emerald-500  ring-4 ring-emerald-500/10" : "border-gray-50"
                                 )}>
                                     <img src={img.preview} className="w-full h-full object-cover" alt="" />
 
                                     {/* Primary Badge */}
-                                    {img.isPrimary && (
+                                    {img.primary && (
                                         <div className="absolute top-3 left-3 bg-emerald-500 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
                                             Primary
                                         </div>
@@ -953,7 +953,7 @@ export default function ProductFormPage() {
                                     {/* Hover Actions */}
                                     {img.status === 'done' && (
                                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3">
-                                            {!img.isPrimary && (
+                                            {!img.primary && (
                                                 <Button
                                                     size="sm"
                                                     className="zimpy-btn-primary h-9 px-4 rounded-full text-[10px]"

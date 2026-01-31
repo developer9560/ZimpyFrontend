@@ -46,12 +46,10 @@ import type {
   CartResponse
 } from '@/src/types';
 import { userCategory, userCategoryResponse } from '@/src/types/category';
-import dotenv from 'dotenv';
-import { stat } from 'fs';
 import { CheckoutResponse } from '../types/checkout';
 
+// const baseUrl = process.env.NEXT_PUBLIC_API_URL
 const baseUrl = "http://localhost:8080"
-
 
 // Create axios instance
 const api = axios.create({

@@ -16,8 +16,7 @@ import {
     BarChart2,
     XCircle,
     Package,
-    Filter,
-    List
+    Filter
 } from 'lucide-react';
 import api, { productsAPI } from '@/src/lib/api';
 import { formatPrice } from '@/src/lib/utils';
@@ -33,22 +32,22 @@ interface Product {
     slug: string;
     brand: string;
     active: boolean;
-    category: {
-        name: string;
-    };
+    featured: boolean;
+    sale: number;
+    views: number;
+    categoryName: string;
+    primaryImage: string;
     skus: Array<{
+        id: number;
+        skuCode: string;
         price: number;
+        mrp: number;
         stock: number;
-        reservedStock: number;
-        availableStock: number;
-    }>;
-    images: Array<{
-        imageUrl: string;
-        isPrimary: boolean;
-    }>;
-    productDetails: Array<{
-        key: string;
-        value: string;
+        attributeValues: Array<{
+            name: string;
+            type: string;
+            value: string;
+        }>;
     }>;
 }
 
@@ -61,8 +60,6 @@ export default function AdminProductsPage() {
     const [hasNext, setHasNext] = useState(false);
 
     const [analytics, setAnalytics] = useState<ProductAnalytics | null>(null);
-    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-    const [isDetailOpen, setIsDetailOpen] = useState(false);
 
     useEffect(() => {
         fetchProducts(0, true);
@@ -140,6 +137,18 @@ export default function AdminProductsPage() {
                 p.id === id ? { ...p, active: !currentStatus } : p
             ));
             toast.success(`Product ${currentStatus ? 'deactivated' : 'activated'}`);
+        } catch (error) {
+            toast.error('Failed to update product status');
+        }
+    };
+    const toggleFeatured = async (id: number, currentStatus: boolean) => {
+        try {
+            const endpoint = currentStatus ? 'unfeature' : 'feature';
+            await api.patch(`/admin/products/${id}/${endpoint}`);
+            setProducts((prev: Product[]) => prev.map(p =>
+                p.id === id ? { ...p, featured: !currentStatus } : p
+            ));
+            toast.success(`Product ${currentStatus ? 'unfeatured' : 'featured'}`);
         } catch (error) {
             toast.error('Failed to update product status');
         }
@@ -303,10 +312,13 @@ export default function AdminProductsPage() {
                         <thead className="bg-gray-50 border-b border-gray-100">
                             <tr>
                                 <th className="px-6 py-4 font-semibold text-gray-600">Product</th>
+                                {/* <th className="px-6 py-4 font-semibold text-gray-600">Brand</th> */}
                                 <th className="px-6 py-4 font-semibold text-gray-600">Category</th>
-                                <th className="px-6 py-4 font-semibold text-gray-600">Price (Min)</th>
-                                <th className="px-6 py-4 font-semibold text-gray-600">Stock</th>
-                                <th className="px-6 py-4 font-semibold text-gray-600">Status</th>
+                                <th className="px-6 py-4 font-semibold text-gray-600">Featured</th>
+                                <th className="px-6 py-4 font-semibold text-gray-600">SKUs</th>
+                                <th className="px-6 py-4 font-semibold text-gray-600">Active</th>
+                                <th className="px-6 py-4 font-semibold text-gray-600">Sales</th>
+                                <th className="px-6 py-4 font-semibold text-gray-600">Views</th>
                                 <th className="px-6 py-4 font-semibold text-gray-600 text-right">Actions</th>
                             </tr>
                         </thead>
@@ -314,14 +326,14 @@ export default function AdminProductsPage() {
                             {isLoading ? (
                                 Array.from({ length: 5 }).map((_, i) => (
                                     <tr key={i} className="animate-pulse">
-                                        <td colSpan={6} className="px-6 py-4">
+                                        <td colSpan={9} className="px-6 py-4">
                                             <div className="h-12 bg-gray-100 rounded"></div>
                                         </td>
                                     </tr>
                                 ))
                             ) : filteredProducts.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                                    <td colSpan={9} className="px-6 py-12 text-center text-gray-500">
                                         No products found.
                                     </td>
                                 </tr>
@@ -329,80 +341,147 @@ export default function AdminProductsPage() {
                                 filteredProducts.map((product) => (
                                     <tr
                                         key={product.id}
-                                        className="hover:bg-gray-50/50 transition-colors cursor-pointer group/row"
-                                        onClick={() => {
-                                            setSelectedProduct(product);
-                                            setIsDetailOpen(true);
-                                        }}
+                                        className="hover:bg-gray-50/50 transition-colors group/row border-2 border-gray-100 "
                                     >
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center border border-gray-200">
-                                                    {product.images?.[0] ? (
-                                                        <img src={product.images[0].imageUrl} alt="" className="w-full h-full object-cover" />
+                                        {/* Product Image & Name */}
+                                        <td className="px-6 py-4 border-2 ">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-14 h-14 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border border-gray-200 shadow-sm">
+                                                    {product.primaryImage ? (
+                                                        <img src={product.primaryImage} alt={product.name} className="w-full h-full object-cover" />
                                                     ) : (
                                                         <ImageIcon className="w-6 h-6 text-gray-300" />
                                                     )}
                                                 </div>
-                                                <div>
-                                                    <p className="font-bold text-gray-900 line-clamp-1 group-hover/row:text-[#10B981] transition-colors">{product.name}</p>
-                                                    <p className="text-xs text-gray-500">{product.brand || 'No Brand'}</p>
+                                                <div className="min-w-0">
+                                                    <p className="font-bold text-gray-900 line-clamp-1 group-hover/row:text-[#10B981] transition-colors">
+                                                        {product.name}
+                                                    </p>
+                                                    <p className="text-xs text-gray-500 truncate"> {product.brand}</p>
                                                 </div>
                                             </div>
                                         </td>
+
+                                        {/* Brand */}
+                                        {/* <td className="px-6 py-4">
+                                            <span className="text-sm font-medium text-gray-700">
+                                                {product.brand || 'No Brand'}
+                                            </span>
+                                        </td> */}
+
+                                        {/* Category */}
                                         <td className="px-6 py-4">
-                                            <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-md text-xs font-medium">
-                                                {product.category?.name}
+                                            <span className="px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg text-xs font-semibold border border-purple-100">
+                                                {product.categoryName}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 font-semibold text-gray-900">
-                                            {product.skus?.length > 0
-                                                ? formatPrice(Math.min(...product.skus.map(s => s.price)))
-                                                : formatPrice(0)
-                                            }
-                                        </td>
+
+                                        {/* Featured */}
                                         <td className="px-6 py-4">
-                                            <div className="flex items-center gap-2">
-                                                <Package className="w-4 h-4 text-gray-400" />
-                                                <span className={cn(
-                                                    "font-medium",
-                                                    product.skus?.reduce((acc: number, s: any) => acc + (s.stock || 0), 0) === 0 ? "text-red-500" : "text-gray-700"
-                                                )}>
-                                                    {product.skus?.reduce((acc: number, s: any) => acc + (s.stock || 0), 0) || 0}
-                                                </span>
+                                            <div className="flex items-center gap-1.5">
+                                                {product.featured ? (
+                                                    <span className="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-[10px] font-black tracking-wider border border-amber-200 flex items-center gap-1" onClick={() => toggleFeatured(product.id, product.featured)}>
+                                                        <TrendingUp className="w-3 h-3" />
+                                                        YES
+                                                    </span>
+                                                ) : (
+                                                    <span className="px-2.5 py-1 bg-gray-50 text-gray-500 rounded-full text-[10px] font-semibold tracking-wider border border-gray-200" onClick={() => toggleFeatured(product.id, product.featured)}>
+                                                        NO
+                                                    </span>
+                                                )}
                                             </div>
                                         </td>
+
+                                        {/* SKUs with Details */}
+                                        <td className="px-6 py-4">
+                                            <div className="space-y-2">
+                                                {/* <div className="flex items-center gap-2">
+                                                    <Package className="w-4 h-4 text-gray-400" />
+                                                    <span className="font-bold text-gray-900">{product.skus?.length || 0} Variants</span>
+                                                </div> */}
+                                                {product.skus && product.skus.length > 0 && (
+                                                    <div className="space-y-1.5 max-w-xs">
+                                                        {product.skus.map((sku, idx) => (
+                                                            <div key={sku.id} className="p-2 bg-gray-50 rounded-lg border border-gray-100 text-xs">
+                                                                <div className="flex items-center justify-between mb-1">
+                                                                    <span className="font-semibold text-gray-700">SKU #{idx + 1}</span>
+                                                                    <span className={cn(
+                                                                        "px-1.5 py-0.5 rounded text-[10px] font-bold",
+                                                                        sku.stock > 0 ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"
+                                                                    )}>
+                                                                        Stock: {sku.stock}
+                                                                    </span>
+                                                                </div>
+                                                                {sku.attributeValues && sku.attributeValues.length > 0 && (
+                                                                    <div className="flex flex-wrap gap-1 mb-1">
+                                                                        {sku.attributeValues.map((attr, attrIdx) => (
+                                                                            <span key={attrIdx} className="px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded text-[10px] font-medium border border-blue-100">
+                                                                                {attr.name}: {attr.value}
+                                                                            </span>
+                                                                        ))}
+                                                                    </div>
+                                                                )}
+                                                                <div className="flex items-center justify-between text-[10px]">
+                                                                    <span className="text-gray-500">Price: <span className="font-bold text-emerald-600">{formatPrice(sku.price)}</span></span>
+                                                                    <span className="text-gray-500">MRP: <span className="font-bold text-gray-700 line-through">{formatPrice(sku.mrp)}</span></span>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </td>
+
+                                        {/* Active Status */}
                                         <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                                             <button
                                                 onClick={() => toggleStatus(product.id, product.active)}
                                                 className={cn(
-                                                    "px-3 py-1 rounded-full text-[10px] font-black tracking-widest transition-all",
+                                                    "px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest transition-all shadow-sm",
                                                     product.active
-                                                        ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
-                                                        : "bg-red-50 text-red-600 border border-red-100"
+                                                        ? "bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100"
+                                                        : "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100"
                                                 )}
                                             >
                                                 {product.active ? 'ACTIVE' : 'INACTIVE'}
                                             </button>
                                         </td>
+
+                                        {/* Sales */}
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-1.5">
+                                                <BarChart2 className="w-4 h-4 text-blue-400" />
+                                                <span className="font-bold text-gray-900">{product.sale}</span>
+                                            </div>
+                                        </td>
+
+                                        {/* Views */}
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-1.5">
+                                                <TrendingUp className="w-4 h-4 text-purple-400" />
+                                                <span className="font-bold text-gray-900">{product.views}</span>
+                                            </div>
+                                        </td>
+
+                                        {/* Actions */}
                                         <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                                             <div className="flex items-center justify-end gap-2">
                                                 <Link href={`/suraj-yuvraj-zimpy-admin/products/edit/${product.id}`}>
-                                                    <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-amber-600 border-amber-100 hover:bg-amber-50">
+                                                    <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-amber-600 border-amber-200 hover:bg-amber-50">
                                                         <Edit className="w-4 h-4" />
                                                     </Button>
                                                 </Link>
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-100"
+                                                    className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
                                                     onClick={() => handleSoftDelete(product.id)}
                                                     title="Move to Trash"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
                                                 </Button>
                                                 <Link href={`/user/products/${product.id}`} target="_blank">
-                                                    <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                                                    <Button variant="outline" size="sm" className="h-8 w-8 p-0 border-gray-200 hover:bg-gray-50">
                                                         <ExternalLink className="w-4 h-4" />
                                                     </Button>
                                                 </Link>
@@ -436,144 +515,6 @@ export default function AdminProductsPage() {
                 </p>
             )}
 
-            {/* Product Detail Drawer */}
-            {isDetailOpen && selectedProduct && (
-                <div className="fixed inset-0 z-50 overflow-hidden">
-                    <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setIsDetailOpen(false)} />
-                    <div className="absolute inset-y-0 right-0 max-w-2xl w-full bg-white shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
-                        <div className="flex items-center justify-between p-6 border-b border-gray-100">
-                            <div className="flex items-center gap-4">
-                                <div className="w-16 h-16 bg-gray-50 rounded-2xl overflow-hidden border border-gray-100">
-                                    {selectedProduct.images?.[0] ? (
-                                        <img src={selectedProduct.images[0].imageUrl} alt="" className="w-full h-full object-cover" />
-                                    ) : (
-                                        <ImageIcon className="w-8 h-8 text-gray-300 m-4" />
-                                    )}
-                                </div>
-                                <div>
-                                    <h2 className="text-xl font-black text-gray-900">{selectedProduct.name}</h2>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-xs font-bold text-gray-400 tracking-widest uppercase">{selectedProduct.brand || 'No Brand'}</span>
-                                        <span className="w-1 h-1 bg-gray-300 rounded-full" />
-                                        <span className="text-xs font-bold text-emerald-600 tracking-widest uppercase">{selectedProduct.category?.name}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => setIsDetailOpen(false)}
-                                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                            >
-                                <XCircle className="w-6 h-6 text-gray-400" />
-                            </button>
-                        </div>
-
-                        <div className="flex-1 overflow-y-auto p-6">
-                            <div className="grid grid-cols-3 gap-4 mb-8">
-                                <div className="p-4 bg-emerald-50 rounded-3xl border border-emerald-100">
-                                    <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Total Stock</p>
-                                    <h4 className="text-2xl font-black text-emerald-900">
-                                        {selectedProduct.skus?.reduce((acc, s) => acc + (s.stock || 0), 0)}
-                                    </h4>
-                                </div>
-                                <div className="p-4 bg-amber-50 rounded-3xl border border-amber-100">
-                                    <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1">Reserved</p>
-                                    <h4 className="text-2xl font-black text-amber-900">
-                                        {selectedProduct.skus?.reduce((acc, s) => acc + (s.reservedStock || 0), 0)}
-                                    </h4>
-                                </div>
-                                <div className="p-4 bg-blue-50 rounded-3xl border border-blue-100">
-                                    <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Available</p>
-                                    <h4 className="text-2xl font-black text-blue-900">
-                                        {selectedProduct.skus?.reduce((acc, s) => acc + (s.availableStock || 0), 0)}
-                                    </h4>
-                                </div>
-                            </div>
-
-                            <div className="space-y-6">
-                                <div>
-                                    <div className="flex items-center justify-between mb-4">
-                                        <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest flex items-center gap-2">
-                                            <Tag size={16} className="text-emerald-500" />
-                                            Product Variants (SKUs)
-                                        </h3>
-                                        <Link href={`/suraj-yuvraj-zimpy-admin/products/edit/${selectedProduct.id}`}>
-                                            <Button variant="ghost" size="sm" className="text-xs font-bold text-[#10B981]">Manage SKUs</Button>
-                                        </Link>
-                                    </div>
-                                    <div className="space-y-3">
-                                        {selectedProduct.skus?.map((sku, idx) => (
-                                            <div key={idx} className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                                                <div className="flex items-center justify-between mb-4">
-                                                    <div>
-                                                        <p className="text-xs font-black text-gray-400 mb-1 uppercase tracking-tighter">Variant #{idx + 1}</p>
-                                                        <p className="text-sm font-bold text-gray-900">{formatPrice(sku.price)}</p>
-                                                    </div>
-                                                    <div className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-full border border-gray-100 shadow-sm">
-                                                        <Package size={14} className={sku.stock === 0 ? "text-red-400" : "text-emerald-400"} />
-                                                        <span className={cn("text-xs font-black", sku.stock === 0 ? "text-red-600" : "text-gray-900")}>
-                                                            {sku.stock} Total
-                                                        </span>
-                                                    </div>
-                                                </div>
-
-                                                <div className="grid grid-cols-2 gap-3">
-                                                    <div className="flex items-center justify-between p-2.5 bg-white rounded-xl border border-gray-50 shadow-sm">
-                                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Reserved</span>
-                                                        <span className="text-xs font-black text-amber-600">{sku.reservedStock} Units</span>
-                                                    </div>
-                                                    <div className="flex items-center justify-between p-2.5 bg-white rounded-xl border border-gray-50 shadow-sm">
-                                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Available</span>
-                                                        <span className="text-xs font-black text-blue-600">{sku.availableStock} Units</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                        {(!selectedProduct.skus || selectedProduct.skus.length === 0) && (
-                                            <div className="p-8 text-center bg-gray-50 rounded-3xl border border-dashed border-gray-200">
-                                                <AlertTriangle className="w-8 h-8 text-amber-400 mx-auto mb-2" />
-                                                <p className="text-sm font-medium text-gray-500">No variants found for this product.</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Product Details Section */}
-                                {selectedProduct.productDetails && selectedProduct.productDetails.length > 0 && (
-                                    <div className="mt-8">
-                                        <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest flex items-center gap-2 mb-4">
-                                            <List size={16} className="text-emerald-500" />
-                                            Product Details
-                                        </h3>
-                                        <div className="grid grid-cols-1 gap-2">
-                                            {selectedProduct.productDetails.map((detail, idx) => (
-                                                <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 rounded-xl transition-colors hover:bg-gray-100/50">
-                                                    <span className="text-xs font-bold text-gray-500 uppercase tracking-tight">{detail.key}</span>
-                                                    <span className="text-xs font-black text-gray-900">{detail.value}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="p-6 border-t border-gray-100 flex gap-4">
-                            <Link href={`/suraj-yuvraj-zimpy-admin/products/edit/${selectedProduct.id}`} className="flex-1">
-                                <Button className="w-full bg-[#10B981] hover:bg-[#059669] rounded-2xl h-12 font-bold uppercase tracking-widest text-xs">
-                                    Edit Full Details
-                                </Button>
-                            </Link>
-                            <Button
-                                variant="outline"
-                                onClick={() => setIsDetailOpen(false)}
-                                className="flex-1 rounded-2xl h-12 font-bold uppercase tracking-widest text-xs"
-                            >
-                                Close Overview
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }
