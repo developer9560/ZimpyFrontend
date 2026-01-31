@@ -7,7 +7,8 @@ import { motion } from 'framer-motion';
 import { Button } from '@/src/components/ui/Button';
 import axios from 'axios';
 import api, { authAPI } from '@/src/lib/api'
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
+import { handleSuccess, handleError } from '@/src/lib/Error';
 
 export default function AdminLoginPage() {
     const router = useRouter();
@@ -33,16 +34,16 @@ export default function AdminLoginPage() {
             if (response && response.accessToken) {
                 localStorage.setItem('accessToken', response.accessToken);
                 localStorage.setItem('adminToken', response.accessToken);
-                toast.success('Admin Login successful!');
+                handleSuccess('Login successful!');
                 router.push('/suraj-yuvraj-zimpy-admin/dashboard');
             } else {
-                toast.error('Invalid response from server');
+                handleError('Invalid response from server');
             }
         } catch (err: any) {
             console.error('Admin Login error:', err);
             const errorMessage = typeof err.response?.data === 'string' ? err.response.data : (err.response?.data?.message || 'Invalid email or password');
             setError(errorMessage);
-            toast.error(errorMessage);
+            handleError(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -141,6 +142,7 @@ export default function AdminLoginPage() {
                     &copy; 2026 Zimpy Grocery. Built by Suraj & Yuvraj.
                 </p>
             </motion.div>
+            <ToastContainer />
         </div>
     );
 }

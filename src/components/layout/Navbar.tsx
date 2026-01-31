@@ -55,6 +55,11 @@ export const Navbar: React.FC = () => {
 
   const handleLogout = () => {
     logout();
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('zimpy-auth');
+    localStorage.removeItem('rzp_checkout_anon_id');
+    localStorage.removeItem('rzp_device_id');
+
     router.push(ROUTES.HOME);
   };
 

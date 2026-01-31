@@ -141,7 +141,7 @@ export const SignupModal = () => {
                     </div>
 
                     {/* Password Strength Indicator */}
-                    {password && (
+                    {/* {password && (
                         <div className="space-y-1">
                             <div className="flex gap-1">
                                 {[1, 2, 3, 4, 5, 6].map((level) => (
@@ -169,7 +169,7 @@ export const SignupModal = () => {
                                 {passwordStrength.label} password
                             </p>
                         </div>
-                    )}
+                    )} */}
                 </div>
 
                 {/* Confirm Password */}

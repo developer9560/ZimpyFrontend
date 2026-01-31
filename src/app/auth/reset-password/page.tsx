@@ -110,36 +110,6 @@ function ResetPasswordContent() {
                                 </button>
                             </div>
 
-                            {/* Password Strength Indicator */}
-                            {password && (
-                                <div className="space-y-1">
-                                    <div className="flex gap-1">
-                                        {[1, 2, 3, 4, 5, 6].map((level) => (
-                                            <div
-                                                key={level}
-                                                className={cn(
-                                                    'h-1.5 flex-1 rounded-full transition-colors',
-                                                    level <= passwordStrength.score
-                                                        ? `bg-[${passwordStrength.color}]`
-                                                        : 'bg-gray-200'
-                                                )}
-                                                style={{
-                                                    backgroundColor:
-                                                        level <= passwordStrength.score
-                                                            ? passwordStrength.color
-                                                            : undefined,
-                                                }}
-                                            />
-                                        ))}
-                                    </div>
-                                    <p
-                                        className="text-xs font-medium"
-                                        style={{ color: passwordStrength.color }}
-                                    >
-                                        {passwordStrength.label} password
-                                    </p>
-                                </div>
-                            )}
                         </div>
 
                         {/* Confirm Password */}
