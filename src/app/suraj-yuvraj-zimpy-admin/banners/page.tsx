@@ -102,11 +102,13 @@ export default function AdminBannersPage() {
     const handleCreateBanner = async () => {
         if (!formData.title || !formData.link) {
             toast.error('Title and link are required');
+            console.log("Validation Failed: Missing Title or Link");
             return;
         }
 
         if (!images.mobile && !images.tablet && !images.desktop) {
             toast.error('At least one device image is required');
+            console.log("Validation Failed: No Images");
             return;
         }
 

@@ -156,7 +156,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                             <Plane className="w-6 h-6 text-white" />
                         </div>
                         {!sidebarCollapsed && (
-                            <span className="ml-3 text-xl font-bold text-gray-900">WanderTrips</span>
+                            <span className="ml-3 text-xl font-bold text-gray-900">Zimpy</span>
                         )}
                     </motion.div>
 

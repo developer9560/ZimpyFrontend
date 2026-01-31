@@ -48,7 +48,7 @@ export default function CheckoutPage() {
         const { orderId, totalAmount, razorpayOrderId } = orderData;
 
         const options = {
-            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_S8smey1FWsAQzf",
+            key: "rzp_live_S9fDinBw9EX5IM",
             amount: totalAmount * 100, // paise
             currency: "INR",
             name: "Zimpy",

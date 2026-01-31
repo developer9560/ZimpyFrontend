@@ -177,8 +177,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group relative ${isActive
-                                    ? 'bg-[#10B981] text-white shadow-md'
+                                className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${isActive
+                                    ? 'bg-yellow-200 text-white shadow-md'
                                     : 'text-gray-600 hover:bg-gray-50 hover:text-[#10B981]'
                                     }`}
                             >
