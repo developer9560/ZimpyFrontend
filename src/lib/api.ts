@@ -49,7 +49,7 @@ import type {
 import { userCategory, userCategoryResponse } from '@/src/types/category';
 import { CheckoutResponse } from '../types/checkout';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL
+const baseUrl = "https://api.zimpy.in"
 // const baseUrl = "http://localhost:8080"
 
 // Create axios instance
