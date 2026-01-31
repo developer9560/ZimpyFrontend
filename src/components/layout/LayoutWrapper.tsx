@@ -6,6 +6,8 @@ import Navbar from "./Navbar";
 import BottomNav from "./BottomNav";
 import Footer from "./Footer";
 
+import { AuthGuard } from "../auth/AuthGuard";
+
 interface LayoutWrapperProps {
     children: React.ReactNode;
 }
@@ -26,6 +28,7 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
 
     return (
         <>
+            <AuthGuard />
             {!shouldHide && <Navbar />}
             <main className="flex-grow">{children}</main>
             {!shouldHide && <Footer />}

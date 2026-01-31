@@ -6,11 +6,12 @@ import "./globals.css";
 import Category from '@/src/components/layout/category';
 import { ProductSlider } from '@/src/components/product/ProductSlider';
 import { productsAPI } from '@/src/lib/api';
-import type { CategoryProduct } from '@/src/types';
+import type { CategoryResponseForProductCard } from '@/src/types';
 import { Loader2 } from 'lucide-react';
+import { ProductCardSkeleton } from '@/src/components/ui/Skeleton';
 
 export default function RootPage() {
-    const [categoryProducts, setCategoryProducts] = useState<CategoryProduct[]>([]);
+    const [categoryProducts, setCategoryProducts] = useState<CategoryResponseForProductCard[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -40,8 +41,22 @@ export default function RootPage() {
             <Category />
 
             {isLoading ? (
-                <div className="flex justify-center items-center py-20">
-                    <Loader2 className="w-12 h-12 text-[#10B981] animate-spin" />
+                <div className="space-y-8 mt-4 px-4 pb-4">
+                    {[1, 2].map((i) => (
+                        <div key={i} className="space-y-4">
+                            <div className="flex items-center justify-between px-1">
+                                <div className="h-6 w-32 bg-gray-200 rounded animate-pulse" />
+                                <div className="h-4 w-16 bg-gray-200 rounded animate-pulse" />
+                            </div>
+                            <div className="flex gap-4 overflow-hidden">
+                                {[1, 2, 3, 4].map((j) => (
+                                    <div key={j} className="min-w-[160px] md:min-w-[200px]">
+                                        <ProductCardSkeleton />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
                 </div>
             ) : error ? (
                 <div className="text-center py-20">

@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -7,10 +5,10 @@ import { Minus, Plus, ImageIcon } from 'lucide-react';
 import { cn, formatPrice } from '@/src/lib/utils';
 import { useCartStore } from '@/src/store/cartStore';
 import { productsAPI } from '@/src/lib/api';
-import type { Product } from '@/src/types';
+import type { Product, ProductMiniResponse } from '@/src/types';
 
 interface MobileProductCardProps {
-    product: Product;
+    product: Product | ProductMiniResponse;
 }
 
 export const MobileProductCard: React.FC<MobileProductCardProps> = ({ product }) => {
@@ -18,43 +16,56 @@ export const MobileProductCard: React.FC<MobileProductCardProps> = ({ product })
     const [hasMounted, setHasMounted] = useState(false);
     const [displayUnit, setDisplayUnit] = useState<string>('');
 
+    // Type guard
+    const isFullProduct = (p: Product | ProductMiniResponse): p is Product => {
+        return (p as Product).images !== undefined;
+    };
+
+    const getSkus = () => {
+        return (product.skus || []) as any[];
+    };
+
+    const skus = getSkus();
+    const activeSku = skus.find(s => s.stock > 0) || skus[0];
+
     useEffect(() => {
         setHasMounted(true);
 
-        // Fetch first attribute value for this product
-        const fetchFirstAttribute = async () => {
-            try {
-                const variantData = await productsAPI.getProductVariants(product.id);
-
-                // Get the first attribute's first value
-                if (variantData.attributes && variantData.attributes.length > 0) {
-                    const firstAttribute = variantData.attributes[0];
-                    if (firstAttribute.options && firstAttribute.options.length > 0) {
-                        setDisplayUnit(firstAttribute.options[0].value);
+        // Logic to determine display unit
+        if (activeSku && activeSku.attributeValues && activeSku.attributeValues.length > 0) {
+            // New structure: AttributeValues are directly in SKU
+            const attrs = activeSku.attributeValues.map((av: any) => av.value).join(', ');
+            setDisplayUnit(attrs);
+        } else if (isFullProduct(product)) {
+            // Old structure fallback
+            if (product.unit) {
+                setDisplayUnit(product.unit);
+            } else if (skus.length > 1) {
+                // Fetch variants only if needed for fallback
+                const fetchFirstAttribute = async () => {
+                    try {
+                        const variantData = await productsAPI.getProductVariants(product.id);
+                        if (variantData.attributes && variantData.attributes.length > 0) {
+                            const firstAttribute = variantData.attributes[0];
+                            if (firstAttribute.options && firstAttribute.options.length > 0) {
+                                setDisplayUnit(firstAttribute.options[0].value);
+                            }
+                        }
+                    } catch (err) {
+                        console.error('Failed to fetch variant:', err);
                     }
-                }
-            } catch (err) {
-                console.error('Failed to fetch variant:', err);
+                };
+                fetchFirstAttribute();
             }
-        };
-
-        // Only fetch if product has multiple SKUs
-        if (product.skus && product.skus.length > 1) {
-            fetchFirstAttribute();
-        } else if (product.unit) {
-            setDisplayUnit(product.unit);
         }
-    }, [product.id, product.skus, product.unit]);
+    }, [product.id, activeSku, product]);
 
     const quantity = getItemQuantity(product.id);
-    // Get price and stock from the first SKU (default)
-    const sku = product.skus?.[0];
-    const price = sku?.price || 0;
-    const originalPrice = sku?.mrp || price;
-    const stock = sku?.stock || 0;
+    const price = activeSku?.price || 0;
+    const originalPrice = activeSku?.mrp || price;
+    const stock = activeSku?.stock || 0;
     const isOutOfStock = stock === 0;
 
-    // Calculate discount percentage
     const discountPercentage = originalPrice > price
         ? Math.round(((originalPrice - price) / originalPrice) * 100)
         : 0;
@@ -63,7 +74,7 @@ export const MobileProductCard: React.FC<MobileProductCardProps> = ({ product })
         e.preventDefault();
         e.stopPropagation();
         if (!isOutOfStock) {
-            addItem(product, 1);
+            addItem(product as Product, 1);
         }
     };
 
@@ -83,15 +94,19 @@ export const MobileProductCard: React.FC<MobileProductCardProps> = ({ product })
         }
     };
 
+    const imageUrl = isFullProduct(product)
+        ? (product.images?.[0]?.imageUrl)
+        : (product as ProductMiniResponse).imageUrl;
+
     return (
         <Link
             href={`/user/products/${product.id}`}
             className="group flex flex-col bg-white rounded-xl p-2 border border-gray-100 hover:border-[#10B981]/30 transition-all hover:shadow-md h-full relative"
         >
             <div className="relative w-full aspect-square flex items-center justify-center bg-white rounded-lg mb-2 overflow-hidden shadow-sm group-hover:scale-105 transition-transform duration-300">
-                {product.images?.[0] ? (
+                {imageUrl ? (
                     <Image
-                        src={product.images[0].imageUrl}
+                        src={imageUrl}
                         alt={product.name}
                         fill
                         className="object-contain p-2"
@@ -112,8 +127,8 @@ export const MobileProductCard: React.FC<MobileProductCardProps> = ({ product })
                 <h3 className="text-[11px] md:text-sm font-semibold text-gray-800 line-clamp-2 leading-tight group-hover:text-[#10B981] transition-colors">
                     {product.name}
                 </h3>
-                <p className="text-[10px] text-gray-500 font-medium">
-                    {displayUnit || product.unit || 'Default'}
+                <p className="text-[10px] text-gray-500 font-medium min-h-[15px]">
+                    {displayUnit || 'Default'}
                 </p>
 
                 <div className="mt-auto pt-1 mb-2">

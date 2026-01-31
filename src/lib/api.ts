@@ -43,13 +43,14 @@ import type {
   ProductImageResponse,
   ProductAnalytics,
   CategoryProduct,
-  CartResponse
+  CartResponse,
+  CategoryResponseForProductCard
 } from '@/src/types';
 import { userCategory, userCategoryResponse } from '@/src/types/category';
 import { CheckoutResponse } from '../types/checkout';
 
-// const baseUrl = process.env.NEXT_PUBLIC_API_URL
-const baseUrl = "http://localhost:8080"
+const baseUrl = process.env.NEXT_PUBLIC_API_URL
+// const baseUrl = "http://localhost:8080"
 
 // Create axios instance
 const api = axios.create({
@@ -440,7 +441,7 @@ export const productsAPI = {
     return data;
   },
 
-  getProductsByCategory: async (): Promise<CategoryProduct[]> => {
+  getProductsByCategory: async (): Promise<CategoryResponseForProductCard[]> => {
     const response = await api.get('/public/products/grouped-by-category');
     // Backend returns data directly, not wrapped in ApiResponse
     return Array.isArray(response.data) ? response.data : [];

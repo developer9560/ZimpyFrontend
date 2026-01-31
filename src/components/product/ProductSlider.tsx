@@ -6,7 +6,7 @@ import { Navigation } from 'swiper/modules';
 import { ProductCard } from './ProductCard';
 import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import type { Product } from '@/src/types';
+import type { Product, ProductMiniResponse } from '@/src/types';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -14,7 +14,7 @@ import 'swiper/css/navigation';
 
 interface ProductSliderProps {
     title?: string;
-    products: Product[];
+    products: (Product | ProductMiniResponse)[];
     viewAllLink?: string;
     className?: string;
 }

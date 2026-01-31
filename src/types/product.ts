@@ -135,13 +135,19 @@ export interface ProductAnalytics {
     productsByCategory: Record<string, number>;
 }
 
-export interface ProductMiniSkuResponse {
+export interface ProductAttributeValue {
+    name: string;
+    type: string;
+    value: string;
+}
+
+export interface ProductSkuDetailed {
     id: number;
     skuCode: string;
     price: number;
     mrp: number;
     stock: number;
-    availableStock: number;
+    attributeValues: ProductAttributeValue[];
 }
 
 export interface ProductMiniResponse {
@@ -150,7 +156,7 @@ export interface ProductMiniResponse {
     name: string;
     brandName: string;
     imageUrl: string;
-    skuResponse: ProductMiniSkuResponse;
+    skus: ProductSkuDetailed[];
 }
 
 export interface CategoryProduct {

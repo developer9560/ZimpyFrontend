@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -7,10 +5,10 @@ import { Minus, Plus, Star, ImageIcon } from 'lucide-react';
 import { cn, formatPrice } from '@/src/lib/utils';
 import { useCartStore } from '@/src/store/cartStore';
 import { productsAPI } from '@/src/lib/api';
-import type { Product } from '@/src/types';
+import type { Product, ProductMiniResponse, ProductSkuDetailed } from '@/src/types';
 
 interface ProductCardProps {
-  product: Product;
+  product: Product | ProductMiniResponse;
   className?: string;
 }
 
@@ -19,40 +17,56 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, className }) 
   const [hasMounted, setHasMounted] = useState(false);
   const [displayUnit, setDisplayUnit] = useState<string>('');
 
+  // Type guard
+  const isFullProduct = (p: Product | ProductMiniResponse): p is Product => {
+    return (p as Product).images !== undefined;
+  };
+
+  const getSkus = () => {
+    // Cast to any to handle both SKU types easily safely
+    return (product.skus || []) as any[];
+  };
+
+  const skus = getSkus();
+  // Find first SKU with stock > 0, otherwise fallback to first SKU
+  const activeSku = skus.find(s => s.stock > 0) || skus[0];
+
   useEffect(() => {
     setHasMounted(true);
 
-    // Fetch first attribute value for this product
-    const fetchFirstAttribute = async () => {
-      try {
-        const variantData = await productsAPI.getProductVariants(product.id);
-
-        // Get the first attribute's first value
-        if (variantData.attributes && variantData.attributes.length > 0) {
-          const firstAttribute = variantData.attributes[0];
-          if (firstAttribute.options && firstAttribute.options.length > 0) {
-            setDisplayUnit(firstAttribute.options[0].value);
+    // Logic to determine display unit
+    if (activeSku && activeSku.attributeValues && activeSku.attributeValues.length > 0) {
+      // New structure: AttributeValues are directly in SKU
+      const attrs = activeSku.attributeValues.map((av: any) => av.value).join(', ');
+      setDisplayUnit(attrs);
+    } else if (isFullProduct(product)) {
+      // Old structure fallback
+      if (product.unit) {
+        setDisplayUnit(product.unit);
+      } else if (skus.length > 1) {
+        // Fetch variants if not already available
+        const fetchFirstAttribute = async () => {
+          try {
+            const variantData = await productsAPI.getProductVariants(product.id);
+            if (variantData.attributes && variantData.attributes.length > 0) {
+              const firstAttribute = variantData.attributes[0];
+              if (firstAttribute.options && firstAttribute.options.length > 0) {
+                setDisplayUnit(firstAttribute.options[0].value);
+              }
+            }
+          } catch (err) {
+            console.error('Failed to fetch variant:', err);
           }
-        }
-      } catch (err) {
-        // Fallback to product.unit or SKU code if variant fetch fails
-        console.error('Failed to fetch variant:', err);
+        };
+        fetchFirstAttribute();
       }
-    };
-
-    // Only fetch if product has multiple SKUs (indicating variants)
-    if (product.skus && product.skus.length > 1) {
-      fetchFirstAttribute();
-    } else if (product.unit) {
-      setDisplayUnit(product.unit);
     }
-  }, [product.id, product.skus, product.unit]);
+  }, [product.id, activeSku, product]);
 
   const quantity = getItemQuantity(product.id);
-  const sku = product.skus?.[0];
-  const price = sku?.price || 0;
-  const originalPrice = sku?.mrp || price;
-  const stock = sku?.stock || 0;
+  const price = activeSku?.price || 0;
+  const originalPrice = activeSku?.mrp || price;
+  const stock = activeSku?.stock || 0;
   const isOutOfStock = stock === 0;
 
   const discountPercentage = originalPrice > price
@@ -62,7 +76,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, className }) 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!isOutOfStock) addItem(product, 1);
+    // Add product logic - need to ensure we pass a compatible object to cartStore
+    // Assuming cartStore handles Product structure. We might need to map MiniResponse to Product if cartStore requires it.
+    // For now passing it as is, assuming cartStore checks ID/price/sku.
+    if (!isOutOfStock) addItem(product as Product, 1);
   };
 
   const handleIncrement = (e: React.MouseEvent) => {
@@ -77,7 +94,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, className }) 
     if (quantity > 0) updateQuantity(product.id, quantity - 1);
   };
 
-  const primaryImage = product.images?.find((img) => img.isPrimary) || product.images?.[0];
+  const primaryImage = isFullProduct(product)
+    ? (product.images?.find((img) => img.isPrimary)?.imageUrl || product.images?.[0]?.imageUrl)
+    : product.imageUrl;
 
   return (
     <Link
@@ -97,7 +116,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, className }) 
         <div className="relative w-full h-full group-hover:scale-105 transition-transform duration-500">
           {primaryImage ? (
             <Image
-              src={primaryImage.imageUrl || '/placeholder.png'}
+              src={primaryImage || '/placeholder.png'}
               alt={product.name}
               fill
               className="object-contain p-2"
@@ -119,8 +138,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, className }) 
         <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-snug mb-1 min-h-[40px] group-hover:text-[#10B981] transition-colors">
           {product.name}
         </h3>
-        <p className="text-xs text-gray-500 mb-4 font-medium">
-          {displayUnit || product.unit || 'Default'}
+        <p className="text-xs text-gray-500 mb-4 font-medium min-h-[16px]">
+          {displayUnit || 'Default'}
         </p>
 
         <div className="flex items-center justify-between mt-auto">

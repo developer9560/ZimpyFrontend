@@ -5,6 +5,8 @@ import { persist } from 'zustand/middleware';
 import type { User, LoginCredentials, SignupData, AuthResponse, AdminAuthResponse } from '@/src/types';
 import { authAPI, userAPI } from '@/src/lib/api';
 
+import { jwtDecode } from 'jwt-decode';
+
 interface AuthState {
   user: User | null;
   token: string | null;
@@ -23,6 +25,7 @@ interface AuthActions {
   logout: () => void;
   setUser: (user: User) => void;
   setToken: (token: string) => void;
+  verifySession: () => void;
   clearError: () => void;
   fetchProfile: () => Promise<void>;
   // Password Reset Flow
@@ -65,6 +68,9 @@ export const useAuthStore = create<AuthStore>()(
           if (typeof window !== 'undefined') {
             localStorage.setItem('accessToken', response.accessToken);
           }
+          // Verify session to set up timer
+          get().verifySession();
+
           // Fetch profile after login to get user details
           await get().fetchProfile();
         } catch (error) {
@@ -101,6 +107,7 @@ export const useAuthStore = create<AuthStore>()(
           if (typeof window !== 'undefined') {
             localStorage.setItem('accessToken', response.token);
           }
+          get().verifySession();
         } catch (error) {
           const message = error instanceof Error ? error.message : 'OTP verification failed';
           set({ error: message, isLoading: false });
@@ -118,6 +125,8 @@ export const useAuthStore = create<AuthStore>()(
         });
         if (typeof window !== 'undefined') {
           localStorage.removeItem('accessToken');
+          localStorage.removeItem('adminToken');
+          localStorage.removeItem('user');
         }
       },
 
@@ -130,6 +139,35 @@ export const useAuthStore = create<AuthStore>()(
         if (typeof window !== 'undefined') {
           localStorage.setItem('accessToken', token);
         }
+        get().verifySession();
+      },
+
+      verifySession: () => {
+        const { token, logout } = get();
+        if (!token) return;
+
+        try {
+          const decoded: any = jwtDecode(token);
+          const currentTime = Date.now() / 1000;
+
+          if (decoded.exp < currentTime) {
+            // Token expired
+            logout();
+          } else {
+            // Optional: Set timeout to logout when token expires
+            // Clearing existing timeout if sophisticated logic needed, but simple timeout works for now
+            const timeUntilExpiry = (decoded.exp - currentTime) * 1000;
+            if (timeUntilExpiry > 0 && timeUntilExpiry < 24 * 60 * 60 * 1000) { // Safety limit
+              setTimeout(() => {
+                get().logout();
+                // Let the UI components handle redirect if on a protected route
+              }, timeUntilExpiry);
+            }
+          }
+        } catch (error) {
+          // Invalid token format
+          logout();
+        }
       },
 
       clearError: () => {
@@ -139,6 +177,10 @@ export const useAuthStore = create<AuthStore>()(
       fetchProfile: async () => {
         const { token } = get();
         if (!token) return;
+
+        // Check validity before fetch
+        get().verifySession();
+        if (!get().isAuthenticated) return;
 
         set({ isLoading: true });
         try {
@@ -213,6 +255,12 @@ export const useAuthStore = create<AuthStore>()(
         token: state.token,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        // Verify session immediately after rehydration
+        if (state) {
+          state.verifySession();
+        }
+      },
     }
   )
 );
