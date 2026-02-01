@@ -58,15 +58,23 @@ export const useAuthStore = create<AuthStore>()(
       login: async (credentials: LoginCredentials) => {
         set({ isLoading: true, error: null });
         try {
-          const response: AdminAuthResponse = await authAPI.login(credentials);
-          set({
-            token: response.accessToken, // use accessToken from response
-            isAuthenticated: true,
-            isLoading: false,
-          });
+          const response = await authAPI.login(credentials)
+          if (response.success) {
+            set({
+              token: response.data.accessToken, // use accessToken from response
+              isAuthenticated: true,
+              isLoading: false,
+            });
+          } else {
+            set({
+              error: response.message,
+              isLoading: false,
+            });
+          }
+
           // Store token in localStorage for API interceptor
           if (typeof window !== 'undefined') {
-            localStorage.setItem('accessToken', response.accessToken);
+            localStorage.setItem('accessToken', response.data.accessToken);
           }
           // Verify session to set up timer
           get().verifySession();
@@ -97,7 +105,7 @@ export const useAuthStore = create<AuthStore>()(
       loginWithOTP: async (phone: string, otp: string) => {
         set({ isLoading: true, error: null });
         try {
-          const response: AuthResponse = await authAPI.verifyOTP(phone, otp);
+          const response = await authAPI.verifyOTP(phone, otp);
           set({
             user: response.user,
             token: response.token,

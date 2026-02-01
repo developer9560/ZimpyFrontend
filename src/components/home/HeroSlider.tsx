@@ -120,7 +120,7 @@ export const HeroSlider = () => {
                     navigation={true}
                     loop={banners.length > 1}
                     modules={[Autoplay, Pagination, Navigation]}
-                    className="w-full rounded-xl overflow-hidden h-[160px] sm:h-[240px] md:h-[320px] lg:h-[380px] hero-swiper"
+                    className="w-full rounded-xl overflow-hidden hero-swiper"
                 >
                     {banners.map((banner: PublicBannerResponse) => {
                         const imageUrl = getBannerImage(banner);
@@ -130,7 +130,7 @@ export const HeroSlider = () => {
                                 <Link
                                     href={banner.link || '#'}
                                     onClick={() => handleBannerClick(banner.id, banner.link)}
-                                    className="block w-full h-full relative cursor-pointer"
+                                    className="block w-full h-full h-[160px] sm:h-[240px] md:h-[320px] relative cursor-pointer"
                                 >
                                     {imageUrl ? (
                                         <div className="relative w-full h-full">
@@ -141,13 +141,13 @@ export const HeroSlider = () => {
                                                 // height={300}
                                                 fill
                                                 priority
-                                                className="object-cover rounded-xl"
+                                                className="object-contain w-full h-full rounded-xl"
                                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
                                                 quality={90}
                                             />
                                         </div>
                                     ) : (
-                                        <div className="w-full h-full bg-gradient-to-r from-green-400 to-green-600 flex items-center justify-center rounded-xl">
+                                        <div className="w-full h-[160px] sm:h-[240px] md:h-[320px] lg:h-[380px] bg-gradient-to-r from-green-400 to-green-600 flex items-center justify-center rounded-xl">
                                             <h3 className="text-black text-xl sm:text-3xl md:text-4xl font-bold">
                                                 {banner.title}
                                             </h3>

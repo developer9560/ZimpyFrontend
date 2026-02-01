@@ -117,8 +117,13 @@ export default function CategoryFormPage({ initialData }: CategoryFormProps) {
                 await categoryAPI.update(String(initialData.id), formData);
                 toast.success('Category updated!');
             } else {
-                await categoryAPI.create(formData);
-                toast.success('Category created!');
+                const response = await categoryAPI.create(formData);
+                if (response.success) {
+                    toast.success('Category created!');
+                }
+                else {
+                    toast.error("failed to create the category");
+                }
             }
 
             clearInterval(progressInterval);

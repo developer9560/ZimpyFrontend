@@ -126,17 +126,28 @@ api.interceptors.response.use(
   }
 );
 
+
+
+export const versionAPI = {
+  version: async (): Promise<string> => {
+    const { data } = await api.get<string>("/version");
+    return data;
+  },
+};
+
 // Auth API
+
+
 export const authAPI = {
   // Common login for both user and admin (returns token)
-  login: async (credentials: LoginCredentials): Promise<AdminAuthResponse> => {
-    const { data } = await api.post<AdminAuthResponse>(API_ENDPOINTS.LOGIN, credentials);
+  login: async (credentials: LoginCredentials): Promise<ApiResponse<AdminAuthResponse>> => {
+    const { data } = await api.post<ApiResponse<AdminAuthResponse>>(API_ENDPOINTS.LOGIN, credentials);
     return data;
   },
 
   // User-specific signup
-  signup: async (userData: SignupData): Promise<AuthResponse> => {
-    const { data } = await api.post<AuthResponse>(API_ENDPOINTS.SIGNUP, userData);
+  signup: async (userData: SignupData): Promise<ApiResponse<AuthResponse>> => {
+    const { data } = await api.post<ApiResponse<AuthResponse>>(API_ENDPOINTS.SIGNUP, userData);
     return data;
   },
 
@@ -666,11 +677,11 @@ export const categoryAPI = {
 
 
   // Admin ops
-  create: async (formData: FormData): Promise<CategoryResponse> => {
+  create: async (formData: FormData): Promise<ApiResponse<CategoryResponse>> => {
     const { data } = await api.post<ApiResponse<CategoryResponse>>('/admin/categories', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
-    return data.data;
+    return data;
   },
 
   update: async (id: string, formData: FormData): Promise<CategoryResponse> => {

@@ -79,7 +79,7 @@ export const Navbar: React.FC = () => {
       )}
     >
       {/* Top Bar - Desktop Only */}
-      <div className="hidden lg:block bg-[#10B981] text-white py-1.5">
+      {/* <div className="hidden lg:block bg-[#10B981] text-white py-1.5">
         <div className="container flex items-center justify-between text-xs">
           <p>🎉 Free delivery on orders above ₹499!</p>
           <div className="flex items-center gap-4">
@@ -91,7 +91,7 @@ export const Navbar: React.FC = () => {
             </Link>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Main Navbar */}
       <nav className="container">

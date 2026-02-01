@@ -36,7 +36,7 @@ export default function Category() {
     return (
         <div className="container mx-auto px-4 md:px-0 py-4">
             <h1 className="text-2xl font-bold text-gray-800">Categories</h1>
-            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4 mt-4">
+            <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-10 gap-3 md:gap-4 mt-4">
                 {isLoading ? (
                     Array.from({ length: 12 }).map((_, i) => (
                         <CategorySkeleton key={i} />
@@ -46,7 +46,7 @@ export default function Category() {
                         <Link
                             key={category.id}
                             href={`/user/category/${category.slug}`}
-                            className="group flex flex-col items-center bg-[var(--zimpy-secondary-light)]/50 rounded-xl p-2 shadow-sm hover:shadow-md transition-all border border-transparent hover:border-[#10B981]/20"
+                            className="group flex flex-col items-center bg-[#D1FAE5] rounded-xl p-2 shadow-sm hover:shadow-md transition-all border border-transparent hover:border-[#10B981]/20"
                         >
                             <div className="relative w-full aspect-square flex items-center justify-center bg-white rounded-lg mb-2 shadow-sm group-hover:scale-105 transition-transform duration-300 overflow-hidden">
                                 {category.imageUrl ? (

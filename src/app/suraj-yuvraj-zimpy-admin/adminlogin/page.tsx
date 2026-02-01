@@ -31,13 +31,13 @@ export default function AdminLoginPage() {
                 password: formData.password
             });
 
-            if (response && response.accessToken) {
-                localStorage.setItem('accessToken', response.accessToken);
-                localStorage.setItem('adminToken', response.accessToken);
+            if (response && response.data.accessToken) {
+                localStorage.setItem('accessToken', response.data.accessToken);
+                localStorage.setItem('adminToken', response.data.accessToken);
                 handleSuccess('Login successful!');
                 router.push('/suraj-yuvraj-zimpy-admin/dashboard');
             } else {
-                handleError('Invalid response from server');
+                handleError('Login failed! Please try again.');
             }
         } catch (err: any) {
             console.error('Admin Login error:', err);

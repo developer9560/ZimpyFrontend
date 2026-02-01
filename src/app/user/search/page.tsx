@@ -77,8 +77,8 @@ function SearchPageContent() {
     return (
         <div className="min-h-screen bg-white md:bg-gray-50 ">
             {/* Sticky Header with Search Input */}
-            <div className="sticky top-0 left-0 right-0 z-50 bg-white py-4 shadow-sm ">
-                <div className="container flex items-center justify-between mx-auto px-4 py-3 md:py-4">
+            <div className="sticky top-0 left-0 right-0 z-50 bg-white py-2shadow-sm ">
+                <div className="container flex flex-col md:flex-row justify-between mx-auto px-4 py-3 md:py-4">
                     <Link
                         href="/"
                         className="flex items-center gap-2 flex-shrink-0 p-2 "
@@ -94,7 +94,7 @@ function SearchPageContent() {
                         <button
                             type="button"
                             onClick={() => router.back()}
-                            className="md:hidden p-1 -ml-2 text-gray-500 hover:text-gray-700"
+                            className="hidden p-1 -ml-2 text-gray-500 hover:text-gray-700"
                         >
                             <ChevronLeft size={24} />
                         </button>

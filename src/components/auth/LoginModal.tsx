@@ -40,12 +40,14 @@ export const LoginModal = () => {
 
     const onSubmit = async (data: LoginFormData) => {
         try {
-            await login({
+            const response = await login({
                 email: data.email,
                 password: data.password,
             });
+
             toast.success('Login successful!');
             closeLogin();
+
         } catch {
             // Error is handled by store but showing toast for feedback too if store error isn't enough
             // toast.error(error || 'Login failed. Please try again.'); 
@@ -61,7 +63,7 @@ export const LoginModal = () => {
         <Modal
             isOpen={isLoginOpen}
             onClose={closeLogin}
-            title="Welcome Back! 👋"
+            title="Welcome Back!"
             description="Sign in to continue shopping"
             size="md"
         >

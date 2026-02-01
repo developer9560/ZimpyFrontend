@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { versionAPI } from '@/src/lib/api';
 import {
     LayoutDashboard,
     Users,
@@ -36,6 +37,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         email: 'suraj@zimpy.com',
         role: 'Super Admin'
     });
+    const [version, setVersion] = useState('');
     const router = useRouter();
     const pathname = usePathname();
 
@@ -75,6 +77,27 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     if (!isAuthenticated) {
         return null;
     }
+
+    const fetchVersion = async () => {
+        try {
+            const response = await versionAPI.version();
+
+            // Check if response is a string, otherwise it might be an error object
+            if (typeof response === 'string') {
+                setVersion(response);
+            } else {
+                // If response is an object (error response), use fallback
+                setVersion('1.0.0');
+            }
+        } catch (error) {
+
+            console.error('Error fetching version:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchVersion();
+    }, []);
 
     return (
         <div className="min-h-screen bg-gray-50 flex">
@@ -255,6 +278,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                                         </ol>
                                     </nav>
                                 </div>
+                            </div>
+
+                            <div className="flex items-center ml-4 lg:ml-0">
+                                <h1 className="text-xs text-gray-400">{version}</h1>
                             </div>
 
                             <div className="flex items-center space-x-4">

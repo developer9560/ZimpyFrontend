@@ -15,7 +15,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { icon: Home, label: 'Home', href: '/user' },
+  { icon: Home, label: 'Home', href: '/' },
   { icon: Blocks, label: 'Categories', href: '/user/category' },
   { icon: CirclePlus, label: 'Add', href: '/user/add' },
   { icon: ShoppingCart, label: 'Cart', href: '/user/cart' },
