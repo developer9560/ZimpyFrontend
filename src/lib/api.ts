@@ -49,8 +49,8 @@ import type {
 import { userCategory, userCategoryResponse } from '@/src/types/category';
 import { CheckoutResponse } from '../types/checkout';
 
-const baseUrl = "https://api.zimpy.in"
-// const baseUrl = "http://localhost:8080"
+// const baseUrl = "https://api.zimpy.in"
+const baseUrl = "http://localhost:8080"
 
 // Create axios instance
 const api = axios.create({
@@ -666,7 +666,12 @@ export const categoryAPI = {
 
   getAllCategories: async (): Promise<CategoryMiniResponse[]> => {
     const { data } = await api.get<ApiResponse<CategoryMiniResponse[]>>('/admin/categories/all');
-    return data.data;
+    return data.data || [];
+  },
+
+  getAllActiveCategories: async (): Promise<ApiResponse<CategoryMiniResponse[]>> => {
+    const { data } = await api.get<ApiResponse<CategoryMiniResponse[]>>('/admin/categories/minicategory');
+    return data;
   },
 
 

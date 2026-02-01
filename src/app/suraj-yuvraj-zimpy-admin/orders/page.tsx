@@ -197,7 +197,7 @@ export default function AdminOrdersPage() {
 
     return (
         <div className="relative min-h-screen">
-            <div className={cn("space-y-8 pb-10 transition-all duration-300", isSidePanelOpen ? "mr-[450px]" : "")}>
+            <div className={cn("space-y-8 pb-10 transition-all duration-300", isSidePanelOpen ? "lg:mr-[450px]" : "")}>
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
@@ -457,9 +457,17 @@ export default function AdminOrdersPage() {
                 )}
             </div>
 
+            {/* Mobile Backdrop */}
+            {isSidePanelOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+                    onClick={() => setIsSidePanelOpen(false)}
+                />
+            )}
+
             {/* Side Detail Panel - Modern Draw Layout */}
             <div className={cn(
-                "fixed top-0 right-0 h-screen w-[450px] bg-white shadow-2xl border-l border-gray-100 transition-transform duration-300 z-50 overflow-y-auto",
+                "fixed top-0 right-0 h-screen w-full sm:w-[85%] md:w-[450px] bg-white shadow-2xl border-l border-gray-100 transition-transform duration-300 z-50 overflow-y-auto",
                 isSidePanelOpen ? "translate-x-0" : "translate-x-full"
             )}>
                 {detailLoading ? (

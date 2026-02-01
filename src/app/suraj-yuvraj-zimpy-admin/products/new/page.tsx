@@ -574,7 +574,7 @@ export default function ProductFormPage() {
                                     onChange={e => setProductFormData({ ...productFormData, categoryId: e.target.value })}
                                 >
                                     <option value="">Choose category</option>
-                                    {Array.isArray(categories) && categories.map(c => <option key={c.id} value={String(c.id)}>{c.name} <span className={`${c.isActive ? "text-green-600" : "text-red-600"}`}>{c.isActive ? "(Active)" : "(Inactive)"}</span></option>)}
+                                    {Array.isArray(categories) && categories.map(c => <option key={c.id} value={String(c.id)}>{c.name} {c.isActive ? "(Active)" : "(Inactive)"}</option>)}
                                 </select>
                             </div>
                         </div>

@@ -18,7 +18,6 @@ export interface CategoryMiniResponse {
     id: number;
     name: string;
     isActive: boolean;
-    slug?: string;
 }
 
 export interface ProductImage {

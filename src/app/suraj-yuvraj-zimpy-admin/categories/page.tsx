@@ -212,27 +212,27 @@ export default function AdminCategoriesPage() {
     return (
         <div className="space-y-8 pb-10">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Manage Categories</h1>
                     <p className="text-sm text-gray-500 font-medium">Create and organize your product categories.</p>
                 </div>
-                <div className="flex items-center gap-3">
-                    <div className="relative group">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <div className="relative group flex-1">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <Search size={16} className="text-gray-400 group-focus-within:text-[#10B981] transition-colors" />
                         </div>
                         <input
                             type="text"
                             placeholder="Search categories..."
-                            className="pl-10 pr-4 py-2.5 h-11 border border-gray-200 rounded-xl outline-none focus:border-[#10B981] focus:ring-4 focus:ring-[#10B981]/10 transition-all font-medium text-sm text-gray-700 w-64"
+                            className="w-full pl-10 pr-4 py-2.5 h-11 border border-gray-200 rounded-xl outline-none focus:border-[#10B981] focus:ring-4 focus:ring-[#10B981]/10 transition-all font-medium text-sm text-gray-700"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
 
                     <Link href="/suraj-yuvraj-zimpy-admin/categories/new">
-                        <Button className="zimpy-btn-primary gap-2 h-11 px-6 shadow-xl shadow-[#10B981]/20">
+                        <Button className="zimpy-btn-primary gap-2 h-11 px-6 shadow-xl shadow-[#10B981]/20 w-full sm:w-auto">
                             <Plus size={20} />
                             <span>Add New Category</span>
                         </Button>

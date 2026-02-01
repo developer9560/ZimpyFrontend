@@ -161,13 +161,13 @@ export default function AdminProductsPage() {
 
     return (
         <div className="p-6 max-w-7xl mx-auto">
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+            <div className="flex flex-col gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Product Management</h1>
                     <p className="text-gray-500">Manage your catalog, stock and pricing</p>
                 </div>
-                <Link href="/suraj-yuvraj-zimpy-admin/products/new">
-                    <Button size="lg" className="bg-[#10B981] hover:bg-[#059669]">
+                <Link href="/suraj-yuvraj-zimpy-admin/products/new" className="sm:self-end">
+                    <Button size="lg" className="bg-[#10B981] hover:bg-[#059669] w-full sm:w-auto">
                         <Plus className="w-5 h-5 mr-2" />
                         Add New Product
                     </Button>
