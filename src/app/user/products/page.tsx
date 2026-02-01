@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CategorySidebar } from '@/src/components/category/CategorySidebar';
 import { ProductGrid } from '@/src/components/product/ProductGrid';
@@ -10,7 +10,7 @@ import { productsAPI } from '@/src/lib/api';
 import { SlidersHorizontal, Loader2 } from 'lucide-react';
 import type { Product } from '@/src/types';
 
-export default function ProductsPage() {
+function ProductsPageContent() {
     const searchParams = useSearchParams();
     const categorySlug = searchParams.get('category');
 
@@ -201,5 +201,18 @@ export default function ProductsPage() {
                 onClearFilters={handleClearFilters}
             />
         </div>
+    );
+}
+
+export default function ProductsPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex flex-col items-center justify-center py-20 bg-[#F3F4F6] min-h-[calc(100vh-112px)]">
+                <Loader2 className="w-12 h-12 text-[#10B981] animate-spin mb-4" />
+                <p className="text-gray-500 font-medium">Loading products...</p>
+            </div>
+        }>
+            <ProductsPageContent />
+        </Suspense>
     );
 }

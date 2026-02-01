@@ -559,6 +559,7 @@ export default function AdminOrdersPage() {
                                                     {orderDetail.shippingAddress.addressLine2 && <p className="text-gray-600">{orderDetail.shippingAddress.addressLine2}</p>}
                                                     <p className="text-gray-600">{orderDetail.shippingAddress.city}, {orderDetail.shippingAddress.state}, {orderDetail.shippingAddress.postalCode}</p>
                                                     <p className="text-gray-600">{orderDetail.shippingAddress.country}</p>
+                                                    <p className="text-gray-600">{orderDetail.shippingAddress.contactNumber}</p>
                                                 </div>
                                             </div>
                                         </div>
