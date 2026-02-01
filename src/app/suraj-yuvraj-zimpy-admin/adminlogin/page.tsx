@@ -9,12 +9,13 @@ import axios from 'axios';
 import api, { authAPI } from '@/src/lib/api'
 import { toast, ToastContainer } from 'react-toastify';
 import { handleSuccess, handleError } from '@/src/lib/Error';
+import { useAuthStore } from '@/src/store/authStore';
 
 export default function AdminLoginPage() {
     const router = useRouter();
+    const { login } = useAuthStore();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('')
     const [formData, setFormData] = useState({
         email: '',
         password: ''
@@ -23,27 +24,20 @@ export default function AdminLoginPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        setError('');
 
         try {
-            const response = await authAPI.login({
+            await login({
                 email: formData.email,
                 password: formData.password
             });
 
-            if (response && response.success && response.data.accessToken) {
-                const token = response.data.accessToken;
-                localStorage.setItem('accessToken', token);
-                localStorage.setItem('adminToken', token);
-                handleSuccess('Login successful!');
-                router.push('/suraj-yuvraj-zimpy-admin/dashboard');
-            } else {
-                handleError(response.message || 'Login failed! Please try again.');
-            }
+            handleSuccess('Login successful!');
+            router.push('/suraj-yuvraj-zimpy-admin/dashboard');
         } catch (err: any) {
             console.error('Admin Login error:', err);
-            const errorMessage = typeof err.response?.data === 'string' ? err.response.data : (err.response?.data?.message || 'Invalid email or password');
-            setError(errorMessage);
+            const errorMessage = typeof err.response?.data === 'string'
+                ? err.response.data
+                : (err.response?.data?.message || err.message || 'Invalid email or password');
             handleError(errorMessage);
         } finally {
             setIsLoading(false);

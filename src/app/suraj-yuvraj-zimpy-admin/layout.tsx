@@ -38,6 +38,21 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     const router = useRouter();
     const pathname = usePathname();
 
+    const fetchVersion = async () => {
+        try {
+            const response = await versionAPI.version();
+            // Check if response is a string, otherwise it might be an error object
+            if (typeof response === 'string') {
+                setVersion(response);
+            } else {
+                // If response is an object (error response), use fallback
+                setVersion('1.0.0');
+            }
+        } catch (error) {
+            console.error('Error fetching version:', error);
+        }
+    };
+
     useEffect(() => {
         // Initial session check
         verifySession();
@@ -54,6 +69,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             router.replace(`${BASE_PATH}/adminlogin`);
         }
     }, [isAuthenticated, token, pathname, router, isInitialLoad, isAuthLoading]);
+
+    useEffect(() => {
+        fetchVersion();
+    }, []);
 
     const BASE_PATH = '/suraj-yuvraj-zimpy-admin';
 
@@ -87,27 +106,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     if (!isAuthenticated) {
         return null;
     }
-
-    const fetchVersion = async () => {
-        try {
-            const response = await versionAPI.version();
-
-            // Check if response is a string, otherwise it might be an error object
-            if (typeof response === 'string') {
-                setVersion(response);
-            } else {
-                // If response is an object (error response), use fallback
-                setVersion('1.0.0');
-            }
-        } catch (error) {
-
-            console.error('Error fetching version:', error);
-        }
-    };
-
-    useEffect(() => {
-        fetchVersion();
-    }, []);
 
     return (
         <div className="min-h-screen bg-gray-50 flex">
