@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 export default function AdminPage() {
     const router = useRouter();
 
+
     useEffect(() => {
         // Redirect to login if not authenticated, otherwise to dashboard
         const token = localStorage.getItem('adminToken');

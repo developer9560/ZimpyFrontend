@@ -22,24 +22,38 @@ import {
     Home,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useAuthStore } from '@/src/store/authStore';
 
 interface AdminLayoutProps {
     children: React.ReactNode;
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-    const [isAuthenticated] = useState(true); // Set to true for development
-    const [isLoading] = useState(false);
+    const { isAuthenticated, user, token, logout, verifySession, isLoading: isAuthLoading } = useAuthStore();
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [adminUser] = useState({
-        full_name: 'Suraj Admin',
-        email: 'suraj@zimpy.com',
-        role: 'Super Admin'
-    });
-    const [version, setVersion] = useState('');
+    const [version, setVersion] = useState<string>('1.0.0');
+
     const router = useRouter();
     const pathname = usePathname();
+
+    useEffect(() => {
+        // Initial session check
+        verifySession();
+        setIsInitialLoad(false);
+    }, [verifySession]);
+
+    useEffect(() => {
+        if (isInitialLoad || isAuthLoading) return;
+
+        const BASE_PATH = '/suraj-yuvraj-zimpy-admin';
+        if (pathname === `${BASE_PATH}/adminlogin`) return;
+
+        if (!isAuthenticated || !token) {
+            router.replace(`${BASE_PATH}/adminlogin`);
+        }
+    }, [isAuthenticated, token, pathname, router, isInitialLoad, isAuthLoading]);
 
     const BASE_PATH = '/suraj-yuvraj-zimpy-admin';
 
@@ -54,15 +68,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     ];
 
     const handleLogout = () => {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('rzp_checkout_anon_id');
-        localStorage.removeItem('rzp_device_id');
-        localStorage.removeItem('rzp_test_device_id');
+        logout();
         router.push(`${BASE_PATH}/adminlogin`);
     };
 
-    if (isLoading) {
+    if (isInitialLoad || isAuthLoading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#10B981]"></div>
@@ -224,13 +234,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 <div className="border-t border-gray-100 p-4">
                     <div className={`flex items-center ${sidebarCollapsed ? 'justify-center' : ''}`}>
                         <div className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-[#10B981] font-bold border border-gray-200">
-                            {adminUser?.full_name?.charAt(0) || 'A'}
+                            {user?.fullName?.charAt(0) || 'A'}
                         </div>
 
                         {!sidebarCollapsed && (
                             <div className="ml-3 flex-1 overflow-hidden">
-                                <p className="text-xs font-bold text-gray-900 truncate">{adminUser?.full_name || 'Admin'}</p>
-                                <p className="text-[10px] text-gray-500 truncate">{adminUser?.email}</p>
+                                <p className="text-xs font-bold text-gray-900 truncate">{user?.fullName || 'Admin'}</p>
+                                <p className="text-[10px] text-gray-500 truncate">{user?.email}</p>
                             </div>
                         )}
 
@@ -304,12 +314,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                                 {/* Profile Dropdown */}
                                 <div className="flex items-center space-x-3 pl-2 border-l border-gray-100">
                                     <div className="hidden md:block text-right">
-                                        <p className="text-[10px] uppercase font-bold text-gray-400 leading-none mb-1">{adminUser?.role}</p>
-                                        <p className="text-xs font-bold text-gray-900 leading-none">{adminUser?.full_name}</p>
+                                        <p className="text-[10px] uppercase font-bold text-gray-400 leading-none mb-1">{user?.role || 'ADMIN'}</p>
+                                        <p className="text-xs font-bold text-gray-900 leading-none">{user?.fullName}</p>
                                     </div>
                                     <div className="w-8 h-8 bg-[#10B981]/10 rounded-lg flex items-center justify-center border border-[#10B981]/20">
                                         <span className="text-[#10B981] text-sm font-bold">
-                                            {adminUser?.full_name?.charAt(0) || 'A'}
+                                            {user?.fullName?.charAt(0) || 'A'}
                                         </span>
                                     </div>
                                 </div>

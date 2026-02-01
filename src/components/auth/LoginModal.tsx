@@ -145,7 +145,7 @@ export const LoginModal = () => {
 
                     {error && (
                         <div className="p-3 bg-red-50 text-red-500 text-sm rounded-lg">
-                            {error}
+                            Email or Password is incorrect
                         </div>
                     )}
 

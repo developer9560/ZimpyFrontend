@@ -62,10 +62,7 @@ const api = axios.create({
   },
   withCredentials: true,
   timeout: 10000,
-  maxRedirects: 0,
-  validateStatus: function (status) {
-    return status >= 200 && status < 500;
-  }
+  maxRedirects: 0
 });
 
 // Request interceptor to add auth token
@@ -127,7 +124,6 @@ api.interceptors.response.use(
 );
 
 
-
 export const versionAPI = {
   version: async (): Promise<string> => {
     const { data } = await api.get<string>("/version");
@@ -136,8 +132,6 @@ export const versionAPI = {
 };
 
 // Auth API
-
-
 export const authAPI = {
   // Common login for both user and admin (returns token)
   login: async (credentials: LoginCredentials): Promise<ApiResponse<AdminAuthResponse>> => {
@@ -146,8 +140,8 @@ export const authAPI = {
   },
 
   // User-specific signup
-  signup: async (userData: SignupData): Promise<ApiResponse<AuthResponse>> => {
-    const { data } = await api.post<ApiResponse<AuthResponse>>(API_ENDPOINTS.SIGNUP, userData);
+  signup: async (userData: SignupData): Promise<AuthResponse> => {
+    const { data } = await api.post<AuthResponse>(API_ENDPOINTS.SIGNUP, userData);
     return data;
   },
 

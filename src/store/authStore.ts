@@ -2,10 +2,11 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { User, LoginCredentials, SignupData, AuthResponse, AdminAuthResponse } from '@/src/types';
+import type { User, LoginCredentials, SignupData, AuthResponse, AdminAuthResponse, ApiResponse } from '@/src/types';
 import { authAPI, userAPI } from '@/src/lib/api';
 
 import { jwtDecode } from 'jwt-decode';
+import { useState } from 'react';
 
 interface AuthState {
   user: User | null;
@@ -38,7 +39,9 @@ interface AuthActions {
   closeLogin: () => void;
   openSignup: () => void;
   closeSignup: () => void;
+
 }
+
 
 type AuthStore = AuthState & AuthActions;
 
@@ -58,23 +61,23 @@ export const useAuthStore = create<AuthStore>()(
       login: async (credentials: LoginCredentials) => {
         set({ isLoading: true, error: null });
         try {
-          const response = await authAPI.login(credentials)
-          if (response.success) {
-            set({
-              token: response.data.accessToken, // use accessToken from response
-              isAuthenticated: true,
-              isLoading: false,
-            });
-          } else {
-            set({
-              error: response.message,
-              isLoading: false,
-            });
+          const response: ApiResponse<AdminAuthResponse> = await authAPI.login(credentials);
+
+          if (!response.success) {
+            throw new Error(response.message || 'Login failed');
           }
 
+          const token = response.data.accessToken;
+
+
+          set({
+            token: token,
+            isAuthenticated: true,
+            isLoading: false,
+          });
           // Store token in localStorage for API interceptor
           if (typeof window !== 'undefined') {
-            localStorage.setItem('accessToken', response.data.accessToken);
+            localStorage.setItem('accessToken', token);
           }
           // Verify session to set up timer
           get().verifySession();
@@ -105,7 +108,7 @@ export const useAuthStore = create<AuthStore>()(
       loginWithOTP: async (phone: string, otp: string) => {
         set({ isLoading: true, error: null });
         try {
-          const response = await authAPI.verifyOTP(phone, otp);
+          const response: AuthResponse = await authAPI.verifyOTP(phone, otp);
           set({
             user: response.user,
             token: response.token,
