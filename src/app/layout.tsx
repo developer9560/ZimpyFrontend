@@ -1,23 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Poppins } from "next/font/google";
+// Font imports
+import "@fontsource/inter"; // Defaults to weight 400
+import "@fontsource/poppins/400.css";
+import "@fontsource/poppins/500.css";
+import "@fontsource/poppins/600.css";
+import "@fontsource/poppins/700.css";
+
 import "./globals.css";
 import Providers from "../components/layout/Providers";
 import LayoutWrapper from "../components/layout/LayoutWrapper";
 import { AuthModalProvider } from "../components/auth/AuthModalProvider";
 import Script from "next/script";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-poppins",
-  display: "swap",
-});
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -100,7 +93,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
+    <html lang="en">
       <body className="font-sans antialiased bg-[#F9FAFB] text-[#111827] min-h-screen flex flex-col" suppressHydrationWarning>
         <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
         <Providers>

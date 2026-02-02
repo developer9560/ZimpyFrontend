@@ -118,9 +118,9 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
     return (
         <div className="flex flex-col gap-6">
             {/* Breadcrumb */}
-            <div className="text-sm text-gray-500 font-medium">
+            {/* <div className="text-sm text-gray-500 font-medium">
                 Home / {product.category?.name || 'Products'} / <span className="text-gray-900">{product.name}</span>
-            </div>
+            </div> */}
 
             {/* Title & Rating */}
             <div>
@@ -139,9 +139,9 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
                             {product.reviewCount} ratings
                         </span>
                     )}
-                    <div className="inline-block bg-gray-100 px-3 py-1 rounded-lg text-sm font-semibold text-gray-700">
+                    {/* <div className="inline-block bg-gray-100 px-3 py-1 rounded-lg text-sm font-semibold text-gray-700">
                         {product.unit || selectedSku?.skuCode || 'Default'}
-                    </div>
+                    </div> */}
                 </div>
             </div>
 

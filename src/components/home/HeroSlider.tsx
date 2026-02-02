@@ -130,7 +130,7 @@ export const HeroSlider = () => {
                                 <Link
                                     href={banner.link || '#'}
                                     onClick={() => handleBannerClick(banner.id, banner.link)}
-                                    className="block w-full h-full h-[160px] sm:h-[240px] md:h-[320px] relative cursor-pointer"
+                                    className="block w-full  h-[160px] sm:h-[240px] md:h-[320px] relative cursor-pointer "
                                 >
                                     {imageUrl ? (
                                         <div className="relative w-full h-full">
@@ -141,7 +141,7 @@ export const HeroSlider = () => {
                                                 // height={300}
                                                 fill
                                                 priority
-                                                className="object-contain w-full h-full rounded-xl"
+                                                className="object-cover w-full h-full rounded-xl"
                                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
                                                 quality={90}
                                             />

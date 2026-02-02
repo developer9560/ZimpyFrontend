@@ -176,6 +176,12 @@ export default function AdminOrdersPage() {
             color: 'bg-green-100 text-green-700'
         },
         {
+            label: 'Total Profit',
+            count: formatPrice(analytics?.[timeframe]?.totalProfit ?? 0),
+            icon: <TrendingUp size={16} />,
+            color: 'bg-emerald-100 text-emerald-700'
+        },
+        {
             label: 'Pending',
             count: analytics?.[timeframe]?.pendingOrders ?? 0,
             icon: <Clock size={16} />,
@@ -241,7 +247,7 @@ export default function AdminOrdersPage() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                         {stats.map((stat) => (
                             <div key={stat.label} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between group hover:border-green-500 transition-all cursor-pointer">
                                 <div>

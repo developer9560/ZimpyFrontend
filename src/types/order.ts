@@ -142,6 +142,7 @@ export interface UpdateOrderStatusRequest {
 export interface AnalyticsStats {
     totalOrders: number;
     totalRevenue: number;
+    totalProfit: number;
     pendingOrders: number;
     deliveredOrders: number;
     cancelledOrders: number;
