@@ -21,8 +21,8 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                     <div className="divide-y divide-gray-50">
                         {productDetails.map((detail, idx) => (
                             <div key={idx} className="flex items-start p-4 hover:bg-gray-50/50 transition-colors">
-                                <span className="w-1/3 text-xs font-bold text-gray-400 uppercase tracking-tight">{detail.key}</span>
-                                <span className="flex-1 text-sm font-bold text-gray-800">{detail.value}</span>
+                                <span className="w-1/3 text-xs font-bold text-gray-600 uppercase tracking-tight">{detail.key}</span>
+                                <span className="flex-1 text-sm font-bold text-gray-400">{detail.value}</span>
                             </div>
                         ))}
                     </div>

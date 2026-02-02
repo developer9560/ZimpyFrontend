@@ -78,20 +78,6 @@ export const Navbar: React.FC = () => {
           : 'bg-white'
       )}
     >
-      {/* Top Bar - Desktop Only */}
-      {/* <div className="hidden lg:block bg-[#10B981] text-white py-1.5">
-        <div className="container flex items-center justify-between text-xs">
-          <p>🎉 Free delivery on orders above ₹499!</p>
-          <div className="flex items-center gap-4">
-            <Link href="/about" className="hover:underline">
-              About Us
-            </Link>
-            <Link href="/contact" className="hover:underline">
-              Help & Support
-            </Link>
-          </div>
-        </div>
-      </div> */}
 
       {/* Main Navbar */}
       <nav className="container">
@@ -110,7 +96,7 @@ export const Navbar: React.FC = () => {
           </Link>
 
           {/* Location Selector - Desktop */}
-          <div className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+          {/* <div className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors">
             <MapPin size={20} className="text-[#10B981]" />
             <div className="text-left">
               <p className="text-xs text-gray-500">Deliver to</p>
@@ -118,8 +104,8 @@ export const Navbar: React.FC = () => {
                 Delhi 110001
               </p>
             </div>
-            {/* <ChevronDown size={16} className="text-gray-400" /> */}
-          </div>
+            <ChevronDown size={16} className="text-gray-400" />
+          </div> */}
 
           {/* Search Bar - Desktop */}
           <div
@@ -143,12 +129,12 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center gap-6">
 
             {/* Wishlist - Desktop */}
-            <Link
+            {/* <Link
               href={ROUTES.WISHLIST}
               className="lg:flex p-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors relative"
             >
               <Heart size={22} />
-            </Link>
+            </Link> */}
 
             {/* Cart */}
             <Link

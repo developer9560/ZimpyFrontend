@@ -81,7 +81,7 @@ export const HeroSlider = () => {
     if (isLoading) {
         return (
             <div className="w-full mb-8">
-                <div className="container mx-auto px-4 md:px-0 py-4">
+                <div className="container mx-auto py-4">
                     <div className="w-full rounded-xl overflow-hidden h-[160px] sm:h-[240px] md:h-[320px] lg:h-[380px] bg-gray-100 animate-pulse" />
                 </div>
             </div>
@@ -91,7 +91,7 @@ export const HeroSlider = () => {
     if (banners.length === 0) {
         return (
             <div className="w-full mb-8">
-                <div className="container mx-auto px-4 md:px-0 py-4">
+                <div className="container mx-auto py-4">
                     <div className="w-full rounded-xl overflow-hidden h-[160px] sm:h-[240px] md:h-[320px] lg:h-[380px] bg-gradient-to-r from-green-400 to-green-600 flex items-center justify-center">
                         <div className="text-white text-center">
                             <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-2 sm:mb-4">Welcome to Zimpy</h2>
@@ -105,7 +105,7 @@ export const HeroSlider = () => {
 
     return (
         <div className="w-full mb-4">
-            <div className="container mx-auto px-4 md:px-0 py-4">
+            <div className="container mx-auto py-4">
                 <Swiper
                     spaceBetween={16}
                     centeredSlides={true}
@@ -130,7 +130,7 @@ export const HeroSlider = () => {
                                 <Link
                                     href={banner.link || '#'}
                                     onClick={() => handleBannerClick(banner.id, banner.link)}
-                                    className="block w-full  h-[160px] sm:h-[240px] md:h-[320px] relative cursor-pointer "
+                                    className="block w-full  h-[160px] sm:h-[240px] md:h-[320px] relative cursor-pointer bg-red-500 "
                                 >
                                     {imageUrl ? (
                                         <div className="relative w-full h-full">
@@ -141,13 +141,13 @@ export const HeroSlider = () => {
                                                 // height={300}
                                                 fill
                                                 priority
-                                                className="object-cover w-full h-full rounded-xl"
+                                                className="object-fit w-full h-full rounded-xl"
                                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
                                                 quality={90}
                                             />
                                         </div>
                                     ) : (
-                                        <div className="w-full h-[160px] sm:h-[240px] md:h-[320px] lg:h-[380px] bg-gradient-to-r from-green-400 to-green-600 flex items-center justify-center rounded-xl">
+                                        <div className="w-full h-[160px] sm:h-[240px] md:h-[320px] bg-gradient-to-r from-green-400 to-green-600 flex items-center justify-center rounded-xl">
                                             <h3 className="text-black text-xl sm:text-3xl md:text-4xl font-bold">
                                                 {banner.title}
                                             </h3>

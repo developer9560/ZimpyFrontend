@@ -41,7 +41,7 @@ export default function RootPage() {
             <Category />
 
             {isLoading ? (
-                <div className="space-y-8 mt-4 px-4 pb-4">
+                <div className="container mx-auto space-y-8 mt-4 pb-4">
                     {[1, 2].map((i) => (
                         <div key={i} className="space-y-4">
                             <div className="flex items-center justify-between px-1">

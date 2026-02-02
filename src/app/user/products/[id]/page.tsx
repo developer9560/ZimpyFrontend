@@ -58,7 +58,7 @@ export default function ProductDetailPage({ params }: PageProps) {
     }
 
     return (
-        <div className="bg-[#F9FAFB] min-h-screen pb-20">
+        <div className="bg-[#F9FAFB] min-h-screen py-3">
             <div className="container mx-auto px-4 md:px-6 lg:px-8 pt-4 md:pt-6 max-w-7xl">
 
                 {/* Main Grid: Sticky Gallery + Scrollable Info */}
