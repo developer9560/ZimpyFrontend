@@ -34,7 +34,7 @@ export default function Category() {
     }, [])
 
     return (
-        <div className="container mx-auto py-4">
+        <div className="container mx-auto px-4 md:px-0 py-4">
             <h1 className="text-2xl font-bold text-gray-800">Categories</h1>
             <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-10 gap-2 sm:gap-3 md:gap-4 mt-4">
                 {isLoading ? (
