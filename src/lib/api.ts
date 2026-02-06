@@ -140,7 +140,7 @@ export const authAPI = {
   },
 
   adminLogin: async (credentials: LoginCredentials): Promise<ApiResponse<AdminAuthResponse>> => {
-    const { data } = await api.post<ApiResponse<AdminAuthResponse>>('/admin/login', credentials);
+    const { data } = await api.post<ApiResponse<AdminAuthResponse>>('/auth/admin/login', credentials);
     return data;
   },
 
