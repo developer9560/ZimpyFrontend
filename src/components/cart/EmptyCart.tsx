@@ -20,9 +20,10 @@ export const EmptyCart = () => {
 
             <Link
                 href="/user/products"
-                className="px-8 py-3 bg-[#10B981] text-white font-bold rounded-xl hover:bg-[#059669] transition-all shadow-lg shadow-green-100 hover:shadow-green-200 active:scale-95"
+                className="px-8 py-3 bg-[#10B981] text-white font-bold rounded-xl hover:bg-green-600 transition-all shadow-lg shadow-green-100 hover:shadow-green-200 active:scale-95"
             >
-                Start Shopping
+                <h1 className='text-white'> Start Shopping</h1>
+
             </Link>
         </div>
     );

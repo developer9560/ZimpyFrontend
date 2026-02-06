@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User, LoginCredentials, SignupData, AuthResponse, AdminAuthResponse, ApiResponse } from '@/src/types';
 import { authAPI, userAPI } from '@/src/lib/api';
+import { isAdminFromToken, extractRoleFromToken, isTokenExpired } from '@/src/lib/jwtUtils';
 
 import { jwtDecode } from 'jwt-decode';
 import { useState } from 'react';
@@ -14,6 +15,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  isAdmin: boolean;
   // Modal State
   isLoginOpen: boolean;
   isSignupOpen: boolean;
@@ -29,6 +31,8 @@ interface AuthActions {
   verifySession: () => void;
   clearError: () => void;
   fetchProfile: () => Promise<void>;
+  verifyAdminRole: () => Promise<boolean>;
+  adminLogin: (credentials: LoginCredentials) => Promise<void>;
   // Password Reset Flow
   requestPasswordReset: (email: string) => Promise<void>;
   verifyResetOTP: (email: string, otp: string) => Promise<void>;
@@ -54,6 +58,7 @@ export const useAuthStore = create<AuthStore>()(
       isAuthenticated: false,
       isLoading: false,
       error: null,
+      isAdmin: false,
       isLoginOpen: false,
       isSignupOpen: false,
 
@@ -133,6 +138,7 @@ export const useAuthStore = create<AuthStore>()(
           isAuthenticated: false,
           isLoading: false,
           error: null,
+          isAdmin: false,
         });
         if (typeof window !== 'undefined') {
           localStorage.removeItem('accessToken');
@@ -196,11 +202,79 @@ export const useAuthStore = create<AuthStore>()(
         set({ isLoading: true });
         try {
           const response = await userAPI.getProfile();
-          set({ user: response.data as any, isLoading: false });
+          const userData = response.data as any;
+
+          // Check if user has admin role
+          const isAdmin = userData?.role === 'ADMIN';
+
+          set({
+            user: userData,
+            isAdmin,
+            isLoading: false
+          });
         } catch (error) {
           set({ isLoading: false });
           // If profile fetch fails, clear auth state
           get().logout();
+        }
+      },
+
+      verifyAdminRole: async (): Promise<boolean> => {
+        const { token } = get();
+        if (!token) return false;
+
+        try {
+          // Decode JWT token to extract role
+          const isAdmin = isAdminFromToken(token);
+          set({ isAdmin });
+          return isAdmin;
+        } catch (error) {
+          console.error('Admin role verification failed:', error);
+          set({ isAdmin: false });
+          return false;
+        }
+      },
+
+      adminLogin: async (credentials: LoginCredentials) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response: ApiResponse<AdminAuthResponse> = await authAPI.adminLogin(credentials);
+
+          if (!response.success) {
+            throw new Error(response.message || 'Admin login failed');
+          }
+
+          const token = response.data.accessToken;
+
+          // Verify admin role from token BEFORE setting state
+          const isAdmin = isAdminFromToken(token);
+
+          if (!isAdmin) {
+            throw new Error('Access denied. Admin privileges required.');
+          }
+
+          set({
+            token: token,
+            isAuthenticated: true,
+            isAdmin: true,
+            isLoading: false,
+          });
+
+          // Store token in localStorage
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('accessToken', token);
+            localStorage.setItem('adminToken', token);
+          }
+
+          // Verify session to set up timer
+          get().verifySession();
+
+          // Fetch profile to get user details
+          await get().fetchProfile();
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Admin login failed';
+          set({ error: message, isLoading: false });
+          throw error;
         }
       },
 
@@ -265,6 +339,7 @@ export const useAuthStore = create<AuthStore>()(
         user: state.user,
         token: state.token,
         isAuthenticated: state.isAuthenticated,
+        isAdmin: state.isAdmin,
       }),
       onRehydrateStorage: () => (state) => {
         // Verify session immediately after rehydration
