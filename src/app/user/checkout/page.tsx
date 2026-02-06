@@ -68,9 +68,35 @@ export default function CheckoutPage() {
                         clearCart();
                     } else {
                         toast.error("Payment verification failed. Please contact support.");
+                        // Cancel the order since verification failed
+                        try {
+                            await orderAPI.cancelPayment(orderId.toString());
+                        } catch (error) {
+                            console.error("Failed to cancel order:", error);
+                        }
                     }
                 } catch (error) {
                     toast.error("An error occurred during verification.");
+                    // Cancel the order on verification error
+                    try {
+                        await orderAPI.cancelPayment(orderId.toString());
+                    } catch (err) {
+                        console.error("Failed to cancel order:", err);
+                    }
+                } finally {
+                    setIsPlacingOrder(false);
+                }
+            },
+            modal: {
+                ondismiss: async function () {
+                    // User closed the modal without completing payment
+                    toast.error("Payment cancelled");
+                    try {
+                        await orderAPI.cancelPayment(orderId.toString());
+                    } catch (error) {
+                        console.error("Failed to cancel order:", error);
+                    }
+                    setIsPlacingOrder(false);
                 }
             },
             prefill: {
@@ -84,9 +110,16 @@ export default function CheckoutPage() {
         };
 
         const rzp = new window.Razorpay(options);
-        rzp.on('payment.failed', function (response: any) {
+        rzp.on('payment.failed', async function (response: any) {
             toast.error("Payment failed. Please try again.");
             console.error(response.error);
+            // Cancel the order on payment failure
+            try {
+                await orderAPI.cancelPayment(orderId.toString());
+            } catch (error) {
+                console.error("Failed to cancel order:", error);
+            }
+            setIsPlacingOrder(false);
         });
         rzp.open();
     };

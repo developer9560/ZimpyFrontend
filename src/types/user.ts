@@ -23,7 +23,7 @@ export interface User {
     email: string;
     phone?: string;
     fullName: string;
-    role: 'user' | 'admin';
+    role: 'USER' | 'ADMIN';
     isEmailVerified: boolean;
     isPhoneVerified: boolean;
     addresses?: Address[];

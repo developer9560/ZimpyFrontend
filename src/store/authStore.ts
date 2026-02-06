@@ -14,6 +14,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  isAdmin: boolean;
   // Modal State
   isLoginOpen: boolean;
   isSignupOpen: boolean;
@@ -29,6 +30,8 @@ interface AuthActions {
   verifySession: () => void;
   clearError: () => void;
   fetchProfile: () => Promise<void>;
+  verifyAdminRole: () => Promise<boolean>;
+  adminLogin: (credentials: LoginCredentials) => Promise<void>;
   // Password Reset Flow
   requestPasswordReset: (email: string) => Promise<void>;
   verifyResetOTP: (email: string, otp: string) => Promise<void>;
@@ -54,6 +57,7 @@ export const useAuthStore = create<AuthStore>()(
       isAuthenticated: false,
       isLoading: false,
       error: null,
+      isAdmin: false,
       isLoginOpen: false,
       isSignupOpen: false,
 
@@ -133,6 +137,7 @@ export const useAuthStore = create<AuthStore>()(
           isAuthenticated: false,
           isLoading: false,
           error: null,
+          isAdmin: false,
         });
         if (typeof window !== 'undefined') {
           localStorage.removeItem('accessToken');
@@ -196,11 +201,87 @@ export const useAuthStore = create<AuthStore>()(
         set({ isLoading: true });
         try {
           const response = await userAPI.getProfile();
-          set({ user: response.data as any, isLoading: false });
+          const userData = response.data as any;
+
+          // Check if user has admin role
+          const isAdmin = userData?.role === 'ADMIN';
+
+          set({
+            user: userData,
+            isAdmin,
+            isLoading: false
+          });
         } catch (error) {
           set({ isLoading: false });
           // If profile fetch fails, clear auth state
           get().logout();
+        }
+      },
+
+      verifyAdminRole: async (): Promise<boolean> => {
+        const { token, user } = get();
+        if (!token) return false;
+
+        try {
+          // First check from user object
+          if (user?.role === 'ADMIN') {
+            set({ isAdmin: true });
+            return true;
+          }
+
+          // Fallback: verify with backend
+          const response = await authAPI.verifyAdminRole();
+          const isAdmin = response.data?.isAdmin || response.data?.role === 'ADMIN';
+          set({ isAdmin });
+          return isAdmin;
+        } catch (error) {
+          console.error('Admin role verification failed:', error);
+          set({ isAdmin: false });
+          return false;
+        }
+      },
+
+      adminLogin: async (credentials: LoginCredentials) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response: ApiResponse<AdminAuthResponse> = await authAPI.adminLogin(credentials);
+
+          if (!response.success) {
+            throw new Error(response.message || 'Admin login failed');
+          }
+
+          const token = response.data.accessToken;
+
+          set({
+            token: token,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+
+          // Store token in localStorage
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('accessToken', token);
+            localStorage.setItem('adminToken', token);
+          }
+
+          // Verify session to set up timer
+          get().verifySession();
+
+          // Fetch profile to get user details and verify admin role
+          await get().fetchProfile();
+
+          // Verify admin role
+          const isAdmin = await get().verifyAdminRole();
+
+          if (!isAdmin) {
+            // User is not an admin, logout and throw error
+            get().logout();
+            throw new Error('Access denied. Admin privileges required.');
+          }
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Admin login failed';
+          set({ error: message, isLoading: false });
+          throw error;
         }
       },
 
@@ -265,6 +346,7 @@ export const useAuthStore = create<AuthStore>()(
         user: state.user,
         token: state.token,
         isAuthenticated: state.isAuthenticated,
+        isAdmin: state.isAdmin,
       }),
       onRehydrateStorage: () => (state) => {
         // Verify session immediately after rehydration

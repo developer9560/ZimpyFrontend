@@ -13,7 +13,7 @@ import { useAuthStore } from '@/src/store/authStore';
 
 export default function AdminLoginPage() {
     const router = useRouter();
-    const { login } = useAuthStore();
+    const { adminLogin } = useAuthStore();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -26,7 +26,7 @@ export default function AdminLoginPage() {
         setIsLoading(true);
 
         try {
-            await login({
+            await adminLogin({
                 email: formData.email,
                 password: formData.password
             });
@@ -37,7 +37,7 @@ export default function AdminLoginPage() {
             console.error('Admin Login error:', err);
             const errorMessage = typeof err.response?.data === 'string'
                 ? err.response.data
-                : (err.response?.data?.message || err.message || 'Invalid email or password');
+                : (err.response?.data?.message || err.message || 'Invalid credentials or insufficient permissions');
             handleError(errorMessage);
         } finally {
             setIsLoading(false);

@@ -49,8 +49,8 @@ import type {
 import { userCategory, userCategoryResponse } from '@/src/types/category';
 import { CheckoutResponse } from '../types/checkout';
 
-const baseUrl = "https://api.zimpy.in"
-// const baseUrl = "http://localhost:8080"
+// const baseUrl = "https://api.zimpy.in"
+const baseUrl = "http://localhost:8080"
 
 // Create axios instance
 const api = axios.create({
@@ -139,6 +139,11 @@ export const authAPI = {
     return data;
   },
 
+  adminLogin: async (credentials: LoginCredentials): Promise<ApiResponse<AdminAuthResponse>> => {
+    const { data } = await api.post<ApiResponse<AdminAuthResponse>>('/admin/login', credentials);
+    return data;
+  },
+
   // User-specific signup
   signup: async (userData: SignupData): Promise<AuthResponse> => {
     const { data } = await api.post<AuthResponse>(API_ENDPOINTS.SIGNUP, userData);
@@ -187,6 +192,12 @@ export const authAPI = {
 
   resendPasswordResetOTP: async (email: string): Promise<ApiResponse<void>> => {
     const { data } = await api.post('/auth/password/reset/resend', { email });
+    return data;
+  },
+
+  // Admin role verification
+  verifyAdminRole: async (): Promise<ApiResponse<{ isAdmin: boolean; role: string }>> => {
+    const { data } = await api.get<ApiResponse<{ isAdmin: boolean; role: string }>>('/admin/verify-role');
     return data;
   },
 };
@@ -331,6 +342,10 @@ export const orderAPI = {
   },
   cancel: async (id: string): Promise<ApiResponse<void>> => {
     const response = await api.post<ApiResponse<void>>(`/orders/${id}/cancel`);
+    return response.data;
+  },
+  cancelPayment: async (id: string): Promise<ApiResponse<void>> => {
+    const response = await api.post<ApiResponse<void>>(`/orders/${id}/cancel-payment`);
     return response.data;
   }
 };
