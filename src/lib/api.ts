@@ -195,11 +195,6 @@ export const authAPI = {
     return data;
   },
 
-  // Admin role verification
-  verifyAdminRole: async (): Promise<ApiResponse<{ isAdmin: boolean; role: string }>> => {
-    const { data } = await api.get<ApiResponse<{ isAdmin: boolean; role: string }>>('/admin/verify-role');
-    return data;
-  },
 };
 
 // User API

@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User, LoginCredentials, SignupData, AuthResponse, AdminAuthResponse, ApiResponse } from '@/src/types';
 import { authAPI, userAPI } from '@/src/lib/api';
+import { isAdminFromToken, extractRoleFromToken, isTokenExpired } from '@/src/lib/jwtUtils';
 
 import { jwtDecode } from 'jwt-decode';
 import { useState } from 'react';
@@ -219,19 +220,12 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       verifyAdminRole: async (): Promise<boolean> => {
-        const { token, user } = get();
+        const { token } = get();
         if (!token) return false;
 
         try {
-          // First check from user object
-          if (user?.role === 'ADMIN') {
-            set({ isAdmin: true });
-            return true;
-          }
-
-          // Fallback: verify with backend
-          const response = await authAPI.verifyAdminRole();
-          const isAdmin = response.data?.isAdmin || response.data?.role === 'ADMIN';
+          // Decode JWT token to extract role
+          const isAdmin = isAdminFromToken(token);
           set({ isAdmin });
           return isAdmin;
         } catch (error) {
@@ -252,9 +246,17 @@ export const useAuthStore = create<AuthStore>()(
 
           const token = response.data.accessToken;
 
+          // Verify admin role from token BEFORE setting state
+          const isAdmin = isAdminFromToken(token);
+
+          if (!isAdmin) {
+            throw new Error('Access denied. Admin privileges required.');
+          }
+
           set({
             token: token,
             isAuthenticated: true,
+            isAdmin: true,
             isLoading: false,
           });
 
@@ -267,17 +269,8 @@ export const useAuthStore = create<AuthStore>()(
           // Verify session to set up timer
           get().verifySession();
 
-          // Fetch profile to get user details and verify admin role
+          // Fetch profile to get user details
           await get().fetchProfile();
-
-          // Verify admin role
-          const isAdmin = await get().verifyAdminRole();
-
-          if (!isAdmin) {
-            // User is not an admin, logout and throw error
-            get().logout();
-            throw new Error('Access denied. Admin privileges required.');
-          }
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Admin login failed';
           set({ error: message, isLoading: false });
