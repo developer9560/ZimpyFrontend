@@ -49,8 +49,8 @@ import type {
 import { userCategory, userCategoryResponse } from '@/src/types/category';
 import { CheckoutResponse } from '../types/checkout';
 
-// const baseUrl = "https://api.zimpy.in"
-const baseUrl = "http://localhost:8080"
+const baseUrl = "https://api.zimpy.in"
+// const baseUrl = "http://localhost:8080"
 
 // Create axios instance
 const api = axios.create({
