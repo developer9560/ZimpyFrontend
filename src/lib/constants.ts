@@ -93,7 +93,7 @@ export const API_ENDPOINTS = {
   REMOVE_FROM_WISHLIST: (productId: string) => `/wishlist/remove/${productId}`,
 
   // Search
-  SEARCH: '/search',
+  SEARCH: '/public/products/search',
   SEARCH_SUGGESTIONS: '/search/suggestions',
 
   // Coupons

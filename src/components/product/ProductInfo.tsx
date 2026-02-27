@@ -56,9 +56,9 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
             }
         };
 
-        if (product.skus && product.skus.length > 1) {
-            fetchVariants();
-        }
+        // if (product.skus && product.skus.length > 1) {
+        fetchVariants();
+        // }
     }, [product.id, product.skus]);
 
     // When user selects an attribute value, find the matching SKU
@@ -256,7 +256,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
             </div>
 
             {/* Trust Signals */}
-            <div className="grid grid-cols-2 gap-4 mt-2">
+            {/* <div className="grid grid-cols-2 gap-4 mt-2">
                 <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
                     <div className="p-2.5 bg-white rounded-lg shadow-sm">
                         <Clock size={20} className="text-[#10B981]" />
@@ -275,7 +275,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
                         <p className="text-[10px] text-gray-500 leading-tight">Quality assured</p>
                     </div>
                 </div>
-            </div>
+            </div> */}
             {/* Summary */}
             {product.summary && (
                 <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100/50">

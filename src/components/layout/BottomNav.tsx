@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Search, Tag, ShoppingCart, User, Blocks, CirclePlus } from 'lucide-react';
+import { Home, Search, Tag, ShoppingCart, User, Blocks, CirclePlus, List } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { useCartStore } from '@/src/store/cartStore';
 import { ROUTES } from '@/src/lib/constants';
@@ -15,11 +15,11 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { icon: Home, label: 'Home', href: '/' },
+  { icon: Home, label: 'Home', href: ROUTES.HOME },
   { icon: Blocks, label: 'Categories', href: '/user/category' },
-  { icon: CirclePlus, label: 'Add', href: '/user/add' },
-  { icon: ShoppingCart, label: 'Cart', href: '/user/cart' },
-  { icon: User, label: 'Account', href: '/user/account' },
+  { icon: ShoppingCart, label: 'Cart', href: ROUTES.CART },
+  { icon: List, label: 'Orders', href: ROUTES.MY_ORDERS },
+  { icon: User, label: 'Account', href: ROUTES.ACCOUNT },
 ];
 
 export const BottomNav: React.FC = () => {
@@ -42,8 +42,8 @@ export const BottomNav: React.FC = () => {
         <div className="flex items-center justify-around h-16 px-2">
           {navItems.map((item) => {
             const isActive =
-              item.href === '/user'
-                ? pathname === '/user' || pathname === '/'
+              item.href === ROUTES.HOME || item.href === ROUTES.USER_HOME
+                ? pathname === ROUTES.HOME || pathname === ROUTES.USER_HOME
                 : pathname?.startsWith(item.href);
             const isCart = item.label === 'Cart';
 
